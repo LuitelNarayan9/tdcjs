@@ -1,0 +1,20 @@
+{
+  "forum": "Forum",
+  "newThread": "New Thread",
+  "threads": "Threads",
+  "replies": "Replies",
+  "views": "Views",
+  "postedBy": "Posted by",
+  "replyToThread": "Reply to Thread",
+  "createThread": "Create Thread",
+  "threadTitle": "Thread Title",
+  "threadContent": "Content",
+  "category": "Category",
+  "tags": "Tags",
+  "upvote": "Upvote",
+  "downvote": "Downvote",
+  "report": "Report",
+  "pin": "Pin",
+  "lock": "Lock",
+  "noThreads": "No threads found"
+}

@@ -1,0 +1,10 @@
+{
+  "notFound": "पृष्ठ फेला परेन",
+  "serverError": "सर्भर त्रुटि",
+  "unauthorized": "अनाधिकृत",
+  "forbidden": "निषेधित",
+  "badRequest": "खराब अनुरोध",
+  "networkError": "नेटवर्क त्रुटि",
+  "unknownError": "अज्ञात त्रुटि भयो",
+  "tryAgain": "कृपया पुन: प्रयास गर्नुहोस्"
+}

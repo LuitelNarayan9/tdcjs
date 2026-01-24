@@ -1,0 +1,10 @@
+{
+  "notFound": "Page not found",
+  "serverError": "Server error",
+  "unauthorized": "Unauthorized",
+  "forbidden": "Forbidden",
+  "badRequest": "Bad request",
+  "networkError": "Network error",
+  "unknownError": "An unknown error occurred",
+  "tryAgain": "Please try again"
+}

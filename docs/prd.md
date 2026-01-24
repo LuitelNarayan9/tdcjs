@@ -677,7 +677,8 @@ Page load metrics
 Database query performance
 
 6. UI/UX Requirements
-   6.1 Design Principles
+
+6.1 Design Principles
 
 Modern and Professional: Clean, contemporary design with modern CSS features
 Cultural Sensitivity: Incorporate Sikkimese cultural elements subtly
@@ -759,3 +760,13 @@ Server-only code isolation
 Secure proxy.ts configuration (if needed)
 Environment variable validation
 Secure caching strategies
+
+10. Coding Standards
+
+TypeScript strict mode enabled
+Consistent naming conventions (camelCase, PascalCase)
+Component composition over inheritance
+Custom hooks for reusable logic
+Proper error handling and user feedback
+Accessibility-first development (ARIA labels, keyboard navigation)
+Performance-conscious coding (avoid unnecessary re-renders)

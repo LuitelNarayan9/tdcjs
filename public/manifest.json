@@ -1,0 +1,24 @@
+{
+  "name": "Chandra Jyoti Sanstha",
+  "short_name": "CJS",
+  "description": "Community platform for Chandra Jyoti Sanstha village organization",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/logo/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/images/logo/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["community", "social"],
+  "lang": "en"
+}

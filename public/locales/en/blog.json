@@ -1,0 +1,14 @@
+{
+  "blog": "Blog",
+  "newPost": "New Post",
+  "posts": "Posts",
+  "readMore": "Read More",
+  "publishedOn": "Published on",
+  "author": "Author",
+  "category": "Category",
+  "tags": "Tags",
+  "comments": "Comments",
+  "leaveComment": "Leave a Comment",
+  "relatedPosts": "Related Posts",
+  "noPosts": "No posts found"
+}
