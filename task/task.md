@@ -58,27 +58,27 @@ A comprehensive full-stack web application for a village community organization 
 
 ### 1.3 Core Utilities Setup
 
-- [ ] Create utility functions (`lib/utils/`)
-  - [ ] `cn.ts` - Class name merger (clsx + tailwind-merge)
-  - [ ] `format-date.ts` - Date formatting
-  - [ ] `format-currency.ts` - Currency formatting
-  - [ ] `slugify.ts` - URL slug generator
-  - [ ] `truncate.ts` - Text truncation
-  - [ ] `sanitize.ts` - HTML sanitization (DOMPurify)
-  - [ ] `constants.ts` - App constants
-- [ ] Create validation schemas (`validations/`)
-  - [ ] `common.ts` - Shared schemas
-  - [ ] `auth.ts` - Authentication schemas
-  - [ ] `user.ts` - User schemas
+- [x] Create utility functions (`lib/utils/`)
+  - [x] `cn.ts` - Class name merger (clsx + tailwind-merge)
+  - [x] `format-date.ts` - Date formatting
+  - [x] `format-currency.ts` - Currency formatting
+  - [x] `slugify.ts` - URL slug generator
+  - [x] `truncate.ts` - Text truncation
+  - [x] `sanitize.ts` - HTML sanitization (DOMPurify)
+  - [x] `constants.ts` - App constants
+- [x] Create validation schemas (`validations/`)
+  - [x] `common.ts` - Shared schemas
+  - [x] `auth.ts` - Authentication schemas
+  - [x] `user.ts` - User schemas
 
 ### 1.4 TypeScript Types Setup
 
-- [ ] Create type definitions (`types/`)
-  - [ ] `index.ts` - Export all types
-  - [ ] `auth.ts` - Auth types
-  - [ ] `user.ts` - User types
-  - [ ] `api.ts` - API response types
-  - [ ] `next-auth.d.ts` - NextAuth augmentation
+- [x] Create type definitions (`types/`)
+  - [x] `index.ts` - Export all types
+  - [x] `auth.ts` - Auth types
+  - [x] `user.ts` - User types
+  - [x] `api.ts` - API response types
+  - [x] `next-auth.d.ts` - NextAuth augmentation
 
 ---
 
