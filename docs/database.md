@@ -970,6 +970,29 @@ createdAt DateTime @default(now())
 @@map("data_backups")
 }
 
+model AuditLog {
+id String @id @default(cuid())
+userId String
+action String
+entityType String
+entityId String
+oldValue Json?
+newValue Json?
+description String
+metadata Json? // Additional context
+ipAddress String?
+userAgent String?
+
+createdAt DateTime @default(now())
+
+user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+@@index([userId])
+@@index([entityType])
+@@index([createdAt])
+@@map("audit_logs")
+}
+
 // ============================================
 // PHASE 2 FEATURES - ADDITIONAL TABLES
 // ============================================

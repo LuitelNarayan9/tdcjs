@@ -1,0 +1,1974 @@
+// This is your Prisma schema file for Tumin Dhanbari Chandra Jyoti Sanstha
+// Database: PostgreSQL
+// ORM: Prisma 7.3
+// Next.js: 16 with React 19
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "wasm"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  DELETED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  password      String // Hashed password
+  name          String
+  phone         String?
+  role          Role      @default(USER)
+  status        UserStatus @default(PENDING)
+  profileImage  String?
+  dateOfBirth   DateTime?
+  address       String?
+  bio           String?   @db.Text
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+
+  // Relations
+  accounts        Account[]
+  sessions        Session[]
+  familyNode      FamilyNode?
+  forumThreads    ForumThread[]
+  forumPosts      ForumPost[]
+  blogPosts       BlogPost[]
+  blogComments    BlogComment[]
+  reactions       Reaction[]
+  notifications   Notification[]
+  activityLogs    ActivityLog[]
+  reportsMade     Report[]      @relation("ReportedBy")
+  reportsReceived Report[]      @relation("ReportedUser")
+  adminActions    AdminAction[]
+  userPreferences UserPreferences?
+
+  // Phase 2 relations
+  auditLogs           AuditLog[]
+  eventsOrganized     Event[]          @relation("EventOrganizer")
+  eventRSVPs          EventRSVP[]
+  eventReminders      EventReminder[]
+  photoAlbums         PhotoAlbum[]
+  photos              Photo[]
+  photoTags           PhotoTag[]
+  photoComments       PhotoComment[]
+  photoReactions      PhotoReaction[]
+  documents           Document[]
+  documentPermissions DocumentPermission[]
+  documentDownloads   DocumentDownload[]
+  donations           Donation[]
+  memberProfile       MemberProfile?
+  userBadges          UserBadge[]
+  conversations       ConversationParticipant[]
+  messagesSent        Message[]
+  messageReadReceipts MessageReadReceipt[]
+  pushSubscriptions   PushSubscription[]
+  pushNotifications   PushNotification[]
+  videos              Video[]
+  videoComments       VideoComment[]
+  videoReactions      VideoReaction[]
+  liveStreams         LiveStream[]
+  userPoints          UserPoints?
+  pointHistory        PointHistory[]
+  userAchievements    UserAchievement[]
+  leaderboards        Leaderboard[]
+
+  @@index([email])
+  @@index([status])
+  @@index([role])
+  @@index([createdAt])
+  @@map("users")
+}
+
+// NextAuth.js Account model
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+// NextAuth.js Session model
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// NextAuth.js Verification Token model
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// User Preferences
+model UserPreferences {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  emailNotifications  Boolean @default(true)
+  forumNotifications  Boolean @default(true)
+  blogNotifications   Boolean @default(true)
+  newsNotifications   Boolean @default(true)
+  language            String  @default("en") // en, ne, hi
+  theme               String  @default("light") // light, dark, system
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+// ============================================
+// AUDIT LOG
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String
+  entityType  String
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  description String
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([entityType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// FAMILY TREE
+// ============================================
+
+model FamilyNode {
+  id              String    @id @default(cuid())
+  userId          String?   @unique
+  fullName        String
+  photo           String?
+  dateOfBirth     DateTime?
+  dateOfDeath     DateTime?
+  gender          Gender
+  occupation      String?
+  currentLocation String?
+  biography       String?   @db.Text
+  isPrivate       Boolean   @default(false)
+  isDeceased      Boolean   @default(false)
+
+  // Family Relationships
+  parentId String?
+  spouseId String?
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String? // Admin who created this node
+
+  // Relations
+  user     User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  parent   FamilyNode?  @relation("ParentChild", fields: [parentId], references: [id], onDelete: SetNull)
+  children FamilyNode[] @relation("ParentChild")
+  spouse   FamilyNode?  @relation("Spouses", fields: [spouseId], references: [id], onDelete: SetNull)
+  spouseOf FamilyNode[] @relation("Spouses")
+
+  @@index([userId])
+  @@index([parentId])
+  @@index([spouseId])
+  @@index([fullName])
+  @@index([isPrivate])
+  @@map("family_nodes")
+}
+
+// ============================================
+// FORUM SYSTEM
+// ============================================
+
+model ForumCategory {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  icon        String?
+  color       String? // Hex color for UI
+  order       Int     @default(0)
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  threads ForumThread[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([order])
+  @@map("forum_categories")
+}
+
+model ForumThread {
+  id         String  @id @default(cuid())
+  userId     String
+  categoryId String
+  title      String
+  slug       String  @unique
+  content    String  @db.Text
+  isPinned   Boolean @default(false)
+  isLocked   Boolean @default(false)
+  isFeatured Boolean @default(false)
+  views      Int     @default(0)
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  lastActivityAt DateTime @default(now())
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  ForumCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  posts     ForumPost[]
+  reactions Reaction[]
+  reports   Report[]
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([slug])
+  @@index([isPinned])
+  @@index([createdAt])
+  @@index([lastActivityAt])
+  @@index([views])
+  @@map("forum_threads")
+}
+
+model ForumPost {
+  id       String    @id @default(cuid())
+  userId   String
+  threadId String
+  content  String    @db.Text
+  isEdited Boolean   @default(false)
+  editedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  thread    ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  reactions Reaction[]
+  reports   Report[]
+
+  @@index([userId])
+  @@index([threadId])
+  @@index([createdAt])
+  @@map("forum_posts")
+}
+
+// ============================================
+// BLOG SYSTEM
+// ============================================
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+model BlogCategory {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  color       String?
+  order       Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts BlogPost[]
+
+  @@index([slug])
+  @@map("blog_categories")
+}
+
+model BlogPost {
+  id            String     @id @default(cuid())
+  userId        String
+  categoryId    String
+  title         String
+  slug          String     @unique
+  excerpt       String?    @db.Text
+  content       String     @db.Text
+  featuredImage String?
+  status        PostStatus @default(DRAFT)
+  publishedAt   DateTime?
+  scheduledAt   DateTime?
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+
+  // Stats
+  views    Int  @default(0)
+  readTime Int? // in minutes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  BlogCategory @relation(fields: [categoryId], references: [id])
+  tags      BlogTag[]
+  comments  BlogComment[]
+  reactions Reaction[]
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([views])
+  @@map("blog_posts")
+}
+
+model BlogTag {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+
+  posts BlogPost[]
+
+  @@index([slug])
+  @@map("blog_tags")
+}
+
+model BlogComment {
+  id         String  @id @default(cuid())
+  userId     String
+  blogPostId String
+  parentId   String?
+  content    String  @db.Text
+  isApproved Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blogPost  BlogPost      @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  parent    BlogComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   BlogComment[] @relation("CommentReplies")
+  reactions Reaction[]
+  reports   Report[]
+
+  @@index([userId])
+  @@index([blogPostId])
+  @@index([parentId])
+  @@index([createdAt])
+  @@index([isApproved])
+  @@map("blog_comments")
+}
+
+// ============================================
+// NEWS SYSTEM
+// ============================================
+
+enum NewsPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model NewsCategory {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  color       String?
+  order       Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  news News[]
+
+  @@index([slug])
+  @@map("news_categories")
+}
+
+model News {
+  id            String       @id @default(cuid())
+  categoryId    String
+  title         String
+  slug          String       @unique
+  excerpt       String?      @db.Text
+  content       String       @db.Text
+  featuredImage String?
+  isFeatured    Boolean      @default(false)
+  priority      NewsPriority @default(NORMAL)
+  publishedAt   DateTime     @default(now())
+  expiresAt     DateTime? // For time-sensitive announcements
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+
+  // Stats
+  views Int @default(0)
+
+  // Author (Admin)
+  authorId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category NewsCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([slug])
+  @@index([isFeatured])
+  @@index([priority])
+  @@index([publishedAt])
+  @@index([views])
+  @@index([authorId])
+  @@map("news")
+}
+
+// ============================================
+// EXECUTIVE MEMBERS
+// ============================================
+
+enum MemberStatus {
+  ACTIVE
+  INACTIVE
+  PAST
+}
+
+model ExecutiveMember {
+  id          String  @id @default(cuid())
+  name        String
+  designation String
+  photo       String?
+  email       String?
+  phone       String?
+  bio         String? @db.Text
+
+  // Tenure
+  tenureStart DateTime
+  tenureEnd   DateTime?
+  status      MemberStatus @default(ACTIVE)
+
+  // Display
+  order    Int @default(0)
+  priority Int @default(0) // For hierarchy (President=1, VP=2, etc.)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([order])
+  @@index([priority])
+  @@index([tenureStart])
+  @@map("executive_members")
+}
+
+// ============================================
+// CONTACT INQUIRIES
+// ============================================
+
+enum InquiryStatus {
+  UNREAD
+  READ
+  REPLIED
+  RESOLVED
+  ARCHIVED
+}
+
+enum InquiryPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model ContactInquiry {
+  id         String          @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  subject    String
+  message    String          @db.Text
+  attachment String?
+  status     InquiryStatus   @default(UNREAD)
+  priority   InquiryPriority @default(NORMAL)
+
+  // Response
+  response    String?   @db.Text
+  respondedBy String? // Admin user ID
+  respondedAt DateTime?
+
+  // Metadata
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+  @@index([email])
+  @@map("contact_inquiries")
+}
+
+// ============================================
+// REACTIONS SYSTEM
+// ============================================
+
+enum ReactionType {
+  LIKE
+  LOVE
+  HELPFUL
+  INSIGHTFUL
+  CELEBRATE
+}
+
+model Reaction {
+  id           String       @id @default(cuid())
+  userId       String
+  reactionType ReactionType @default(LIKE)
+
+  // Polymorphic relation
+  itemType String // "thread", "post", "blog", "comment"
+  itemId   String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Optional direct relations (for better querying)
+  forumThread ForumThread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  threadId    String?
+  forumPost   ForumPost?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      String?
+  blogPost    BlogPost?    @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  blogPostId  String?
+  blogComment BlogComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId   String?
+
+  @@unique([userId, itemType, itemId])
+  @@index([userId])
+  @@index([itemType, itemId])
+  @@index([threadId])
+  @@index([postId])
+  @@index([blogPostId])
+  @@index([commentId])
+  @@map("reactions")
+}
+
+// ============================================
+// NOTIFICATIONS SYSTEM
+// ============================================
+
+enum NotificationType {
+  FORUM_REPLY
+  BLOG_COMMENT
+  MENTION
+  LIKE
+  ADMIN_MESSAGE
+  SYSTEM_ALERT
+  NEWS_UPDATE
+  EVENT_REMINDER
+  NEW_MESSAGE
+  EVENT_INVITE
+  DONATION_RECEIVED
+  BADGE_EARNED
+  ACHIEVEMENT_UNLOCKED
+}
+
+model Notification {
+  id      String           @id @default(cuid())
+  userId  String
+  type    NotificationType
+  title   String
+  message String           @db.Text
+  link    String? // URL to the related content
+  isRead  Boolean          @default(false)
+
+  // Metadata
+  metadata Json? // Additional data (e.g., who mentioned you)
+
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([type])
+  @@map("notifications")
+}
+
+// ============================================
+// REPORTING & MODERATION
+// ============================================
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  INAPPROPRIATE_CONTENT
+  MISINFORMATION
+  OFF_TOPIC
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id             String       @id @default(cuid())
+  reportedBy     String
+  reportedUserId String? // User who created the reported content
+  reason         ReportReason
+  description    String?      @db.Text
+  status         ReportStatus @default(PENDING)
+
+  // Polymorphic relation to reported item
+  itemType String // "thread", "post", "comment"
+  itemId   String
+
+  // Resolution
+  resolvedBy String? // Admin who resolved
+  resolvedAt DateTime?
+  resolution String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reporter     User  @relation("ReportedBy", fields: [reportedBy], references: [id], onDelete: Cascade)
+  reportedUser User? @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
+
+  // Optional direct relations
+  forumThread ForumThread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  threadId    String?
+  forumPost   ForumPost?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      String?
+  blogComment BlogComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId   String?
+
+  @@index([reportedBy])
+  @@index([reportedUserId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([itemType, itemId])
+  @@map("reports")
+}
+
+// ============================================
+// ADMIN ACTIONS LOG
+// ============================================
+
+enum AdminActionType {
+  USER_APPROVED
+  USER_SUSPENDED
+  USER_DELETED
+  CONTENT_DELETED
+  CONTENT_APPROVED
+  CONTENT_FEATURED
+  ROLE_CHANGED
+  REPORT_RESOLVED
+  SETTINGS_UPDATED
+  OTHER
+}
+
+model AdminAction {
+  id          String          @id @default(cuid())
+  adminId     String
+  actionType  AdminActionType
+  targetType  String? // "user", "thread", "post", "blog", etc.
+  targetId    String?
+  description String          @db.Text
+  metadata    Json? // Additional data about the action
+
+  createdAt DateTime @default(now())
+
+  admin User @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([actionType])
+  @@index([createdAt])
+  @@index([targetType, targetId])
+  @@map("admin_actions")
+}
+
+// ============================================
+// ACTIVITY LOG
+// ============================================
+
+enum ActivityType {
+  LOGIN
+  LOGOUT
+  PROFILE_UPDATE
+  PASSWORD_CHANGE
+  POST_CREATED
+  COMMENT_CREATED
+  THREAD_CREATED
+  CONTENT_VIEWED
+  CONTENT_SHARED
+  FAMILY_TREE_UPDATED
+  OTHER
+}
+
+model ActivityLog {
+  id           String       @id @default(cuid())
+  userId       String
+  activityType ActivityType
+  description  String
+  metadata     Json? // Additional context
+  ipAddress    String?
+  userAgent    String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([activityType])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// ============================================
+// ANALYTICS & METRICS
+// ============================================
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  userId    String? // Null for anonymous users
+  sessionId String?
+  referrer  String?
+  ipAddress String?
+  userAgent String?
+  country   String?
+  city      String?
+
+  // Performance metrics
+  loadTime Int? // milliseconds
+
+  createdAt DateTime @default(now())
+
+  @@index([path])
+  @@index([userId])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@index([country])
+  @@map("page_views")
+}
+
+model SiteMetrics {
+  id   String   @id @default(cuid())
+  date DateTime @unique @default(now())
+
+  // User metrics
+  totalUsers  Int @default(0)
+  activeUsers Int @default(0)
+  newUsers    Int @default(0)
+
+  // Content metrics
+  totalThreads  Int @default(0)
+  totalPosts    Int @default(0)
+  totalBlogs    Int @default(0)
+  totalComments Int @default(0)
+  newThreads    Int @default(0)
+  newPosts      Int @default(0)
+  newBlogs      Int @default(0)
+  newComments   Int @default(0)
+
+  // Engagement metrics
+  totalViews         Int    @default(0)
+  totalReactions     Int    @default(0)
+  avgSessionDuration Float? // minutes
+  bounceRate         Float? // percentage
+
+  // Family tree metrics
+  totalFamilyNodes Int @default(0)
+  newFamilyNodes   Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@map("site_metrics")
+}
+
+// ============================================
+// SEARCH & INDEXING
+// ============================================
+
+model SearchIndex {
+  id       String  @id @default(cuid())
+  itemType String // "thread", "post", "blog", "news"
+  itemId   String
+  title    String?
+  content  String  @db.Text
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([itemType, itemId])
+  @@index([itemType])
+  @@map("search_index")
+}
+
+// ============================================
+// SITE SETTINGS
+// ============================================
+
+model SiteSetting {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  value       String  @db.Text
+  type        String  @default("string") // string, number, boolean, json
+  category    String  @default("general") // general, seo, email, etc.
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([category])
+  @@map("site_settings")
+}
+
+// ============================================
+// EMAIL TEMPLATES
+// ============================================
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  subject   String
+  body      String   @db.Text
+  variables String[] // Array of available variables
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@map("email_templates")
+}
+
+// ============================================
+// FILE UPLOADS
+// ============================================
+
+enum FileType {
+  IMAGE
+  DOCUMENT
+  VIDEO
+  OTHER
+}
+
+model Upload {
+  id           String   @id @default(cuid())
+  userId       String?
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int // bytes
+  fileType     FileType
+  url          String
+  path         String
+
+  // Metadata
+  width  Int? // for images
+  height Int? // for images
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([fileType])
+  @@index([createdAt])
+  @@map("uploads")
+}
+
+// ============================================
+// CACHE (Optional - for application-level caching)
+// ============================================
+
+model CacheEntry {
+  id        String    @id @default(cuid())
+  key       String    @unique
+  value     String    @db.Text
+  expiresAt DateTime?
+  tags      String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([expiresAt])
+  @@map("cache_entries")
+}
+
+// ============================================
+// BACKUP & AUDIT
+// ============================================
+
+model DataBackup {
+  id         String   @id @default(cuid())
+  tableName  String
+  backupData Json
+  reason     String?
+  createdBy  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([tableName])
+  @@index([createdAt])
+  @@map("data_backups")
+}
+
+// ============================================
+// PHASE 2 FEATURES - ADDITIONAL TABLES
+// ============================================
+
+// ============================================
+// INTERNATIONALIZATION (i18n)
+// ============================================
+
+model Translation {
+  id        String @id @default(cuid())
+  locale    String // en, ne, hi
+  namespace String // common, auth, forum, blog, etc.
+  key       String
+  value     String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([locale, namespace, key])
+  @@index([locale])
+  @@index([namespace])
+  @@map("translations")
+}
+
+// ============================================
+// EVENT MANAGEMENT
+// ============================================
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum EventType {
+  MEETING
+  CELEBRATION
+  CULTURAL
+  RELIGIOUS
+  COMMUNITY_SERVICE
+  WORKSHOP
+  OTHER
+}
+
+enum RSVPStatus {
+  PENDING
+  ATTENDING
+  NOT_ATTENDING
+  MAYBE
+}
+
+model Event {
+  id               String  @id @default(cuid())
+  title            String
+  slug             String  @unique
+  description      String  @db.Text
+  shortDescription String? @db.Text
+  featuredImage    String?
+  location         String
+  venueDetails     String? @db.Text
+
+  // Date & Time
+  startDate DateTime
+  endDate   DateTime
+  isAllDay  Boolean  @default(false)
+  timezone  String   @default("Asia/Kolkata")
+
+  // Event Details
+  organizerId String
+  categoryId  String?
+  eventType   EventType   @default(OTHER)
+  status      EventStatus @default(DRAFT)
+
+  // Capacity
+  maxAttendees Int?
+  requiresRSVP Boolean @default(true)
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+
+  // Stats
+  views Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizer   User              @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+  category    EventCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  rsvps       EventRSVP[]
+  reminders   EventReminder[]
+  attachments EventAttachment[]
+
+  @@index([organizerId])
+  @@index([categoryId])
+  @@index([slug])
+  @@index([status])
+  @@index([startDate])
+  @@index([eventType])
+  @@map("events")
+}
+
+model EventCategory {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  color       String?
+  icon        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events Event[]
+
+  @@index([slug])
+  @@map("event_categories")
+}
+
+model EventRSVP {
+  id         String     @id @default(cuid())
+  eventId    String
+  userId     String
+  status     RSVPStatus @default(PENDING)
+  guestCount Int        @default(1)
+  notes      String?    @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@index([status])
+  @@map("event_rsvps")
+}
+
+model EventReminder {
+  id           String   @id @default(cuid())
+  eventId      String
+  userId       String
+  reminderTime DateTime
+  isSent       Boolean  @default(false)
+  sentAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([userId])
+  @@index([reminderTime])
+  @@index([isSent])
+  @@map("event_reminders")
+}
+
+model EventAttachment {
+  id       String @id @default(cuid())
+  eventId  String
+  filename String
+  url      String
+  fileType String
+  size     Int
+
+  createdAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@map("event_attachments")
+}
+
+// ============================================
+// PHOTO GALLERY
+// ============================================
+
+enum AlbumVisibility {
+  PUBLIC
+  MEMBERS_ONLY
+  PRIVATE
+}
+
+model PhotoAlbum {
+  id          String          @id @default(cuid())
+  userId      String
+  title       String
+  slug        String          @unique
+  description String?         @db.Text
+  coverPhoto  String?
+  visibility  AlbumVisibility @default(MEMBERS_ONLY)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photos Photo[]
+
+  @@index([userId])
+  @@index([slug])
+  @@index([visibility])
+  @@map("photo_albums")
+}
+
+model Photo {
+  id           String  @id @default(cuid())
+  albumId      String
+  userId       String
+  title        String?
+  description  String? @db.Text
+  url          String
+  thumbnailUrl String?
+  width        Int?
+  height       Int?
+  fileSize     Int
+
+  // Metadata
+  takenAt  DateTime?
+  location String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  album     PhotoAlbum      @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags      PhotoTag[]
+  comments  PhotoComment[]
+  reactions PhotoReaction[]
+
+  @@index([albumId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("photos")
+}
+
+model PhotoTag {
+  id      String @id @default(cuid())
+  photoId String
+  userId  String
+  x       Float // X coordinate percentage
+  y       Float // Y coordinate percentage
+
+  createdAt DateTime @default(now())
+
+  photo Photo @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([photoId])
+  @@index([userId])
+  @@map("photo_tags")
+}
+
+model PhotoComment {
+  id      String @id @default(cuid())
+  photoId String
+  userId  String
+  content String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  photo Photo @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([photoId])
+  @@index([userId])
+  @@map("photo_comments")
+}
+
+model PhotoReaction {
+  id      String @id @default(cuid())
+  photoId String
+  userId  String
+  type    String // like, love, etc.
+
+  createdAt DateTime @default(now())
+
+  photo Photo @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([photoId, userId])
+  @@index([photoId])
+  @@index([userId])
+  @@map("photo_reactions")
+}
+
+// ============================================
+// DOCUMENT MANAGEMENT
+// ============================================
+
+enum DocumentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum DocumentAccessLevel {
+  PUBLIC
+  MEMBERS_ONLY
+  ADMIN_ONLY
+  CUSTOM
+}
+
+model DocumentCategory {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  icon        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents Document[]
+
+  @@index([slug])
+  @@map("document_categories")
+}
+
+model Document {
+  id          String              @id @default(cuid())
+  categoryId  String
+  userId      String
+  title       String
+  slug        String              @unique
+  description String?             @db.Text
+  fileUrl     String
+  fileName    String
+  fileSize    Int
+  mimeType    String
+  version     Int                 @default(1)
+  status      DocumentStatus      @default(DRAFT)
+  accessLevel DocumentAccessLevel @default(MEMBERS_ONLY)
+
+  // Version control
+  parentVersionId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category      DocumentCategory     @relation(fields: [categoryId], references: [id])
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentVersion Document?            @relation("DocumentVersions", fields: [parentVersionId], references: [id], onDelete: SetNull)
+  versions      Document[]           @relation("DocumentVersions")
+  permissions   DocumentPermission[]
+  downloads     DocumentDownload[]
+
+  @@index([categoryId])
+  @@index([userId])
+  @@index([slug])
+  @@index([status])
+  @@index([parentVersionId])
+  @@map("documents")
+}
+
+model DocumentPermission {
+  id          String  @id @default(cuid())
+  documentId  String
+  userId      String
+  canView     Boolean @default(true)
+  canDownload Boolean @default(true)
+  canEdit     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, userId])
+  @@index([documentId])
+  @@index([userId])
+  @@map("document_permissions")
+}
+
+model DocumentDownload {
+  id         String  @id @default(cuid())
+  documentId String
+  userId     String
+  ipAddress  String?
+
+  createdAt DateTime @default(now())
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("document_downloads")
+}
+
+// ============================================
+// DONATION SYSTEM
+// ============================================
+
+enum DonationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  RAZORPAY
+  STRIPE
+  BANK_TRANSFER
+  CASH
+  OTHER
+}
+
+model DonationCampaign {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  description   String   @db.Text
+  featuredImage String?
+  goalAmount    Float
+  currentAmount Float    @default(0)
+  currency      String   @default("INR")
+
+  startDate DateTime
+  endDate   DateTime?
+  isActive  Boolean   @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  donations Donation[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("donation_campaigns")
+}
+
+model Donation {
+  id         String  @id @default(cuid())
+  campaignId String?
+  userId     String?
+
+  // Donor Details (for anonymous donations)
+  donorName  String?
+  donorEmail String?
+  donorPhone String?
+  isAnonymous Boolean @default(false)
+
+  // Payment Details
+  amount        Float
+  currency      String         @default("INR")
+  paymentMethod PaymentMethod
+  status        DonationStatus @default(PENDING)
+
+  // Payment Gateway Details
+  transactionId          String? @unique
+  paymentGatewayResponse Json?
+
+  // Receipt
+  receiptNumber String?  @unique
+  taxDeductible Boolean  @default(false)
+
+  // Metadata
+  message String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign DonationCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  user     User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([campaignId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("donations")
+}
+
+// ============================================
+// MEMBER DIRECTORY
+// ============================================
+
+enum MembershipType {
+  REGULAR
+  HONORARY
+  LIFE_MEMBER
+  PATRON
+}
+
+model MemberProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Professional Info
+  profession String?
+  company    String?
+  skills     String[]
+  interests  String[]
+  expertise  String[]
+
+  // Contact Preferences
+  showEmail   Boolean @default(false)
+  showPhone   Boolean @default(false)
+  showAddress Boolean @default(false)
+
+  // Membership
+  membershipType MembershipType @default(REGULAR)
+  memberSince    DateTime       @default(now())
+
+  // Social Links
+  linkedinUrl String?
+  twitterUrl  String?
+  facebookUrl String?
+  websiteUrl  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badges UserBadge[]
+
+  @@index([userId])
+  @@index([membershipType])
+  @@map("member_profiles")
+}
+
+model Badge {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String? @db.Text
+  icon        String?
+  color       String?
+
+  // Requirements
+  criteria Json? // Criteria to earn this badge
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userBadges UserBadge[]
+
+  @@index([name])
+  @@map("badges")
+}
+
+model UserBadge {
+  id             String   @id @default(cuid())
+  userId         String
+  badgeId        String
+  memberProfileId String?
+  earnedAt       DateTime @default(now())
+
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge   Badge          @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  profile MemberProfile? @relation(fields: [memberProfileId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+  @@index([memberProfileId])
+  @@map("user_badges")
+}
+
+// ============================================
+// MESSAGING SYSTEM
+// ============================================
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  DELETED
+}
+
+model Conversation {
+  id         String  @id @default(cuid())
+  isGroup    Boolean @default(false)
+  groupName  String?
+  groupImage String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String @id @default(cuid())
+  conversationId String
+  userId         String
+
+  // Notification settings
+  isMuted Boolean @default(false)
+
+  // Last read tracking
+  lastReadAt DateTime?
+
+  joinedAt DateTime  @default(now())
+  leftAt   DateTime?
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String @db.Text
+
+  // Attachments
+  attachments String[]
+
+  // Status
+  status MessageStatus @default(SENT)
+
+  // Reply to message
+  replyToId String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User                 @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo      Message?             @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies      Message[]            @relation("MessageReplies")
+  readReceipts MessageReadReceipt[]
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([replyToId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model MessageReadReceipt {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  readAt    DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+  @@index([userId])
+  @@map("message_read_receipts")
+}
+
+// ============================================
+// PUSH NOTIFICATIONS
+// ============================================
+
+enum DeviceType {
+  WEB
+  IOS
+  ANDROID
+}
+
+model PushSubscription {
+  id         String     @id @default(cuid())
+  userId     String
+  endpoint   String     @unique
+  keys       Json // p256dh and auth keys
+  deviceType DeviceType @default(WEB)
+  deviceName String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("push_subscriptions")
+}
+
+model PushNotification {
+  id    String  @id @default(cuid())
+  userId String
+  title String
+  body  String  @db.Text
+  icon  String?
+  badge String?
+  data  Json?
+
+  isSent Boolean   @default(false)
+  sentAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isSent])
+  @@index([createdAt])
+  @@map("push_notifications")
+}
+
+// ============================================
+// VIDEO CONTENT
+// ============================================
+
+enum VideoStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum VideoVisibility {
+  PUBLIC
+  MEMBERS_ONLY
+  PRIVATE
+}
+
+model VideoCategory {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  videos Video[]
+
+  @@index([slug])
+  @@map("video_categories")
+}
+
+model Video {
+  id          String @id @default(cuid())
+  categoryId  String
+  userId      String
+  title       String
+  slug        String @unique
+  description String? @db.Text
+
+  // Video Files
+  videoUrl     String
+  thumbnailUrl String?
+  duration     Int? // seconds
+
+  // Processing
+  status     VideoStatus     @default(PROCESSING)
+  visibility VideoVisibility @default(MEMBERS_ONLY)
+
+  // Stats
+  views Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category  VideoCategory   @relation(fields: [categoryId], references: [id])
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments  VideoComment[]
+  reactions VideoReaction[]
+
+  @@index([categoryId])
+  @@index([userId])
+  @@index([slug])
+  @@index([status])
+  @@map("videos")
+}
+
+model VideoComment {
+  id        String @id @default(cuid())
+  videoId   String
+  userId    String
+  content   String @db.Text
+  timestamp Int? // Video timestamp in seconds
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([videoId])
+  @@index([userId])
+  @@map("video_comments")
+}
+
+model VideoReaction {
+  id      String @id @default(cuid())
+  videoId String
+  userId  String
+  type    String // like, love, etc.
+
+  createdAt DateTime @default(now())
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, userId])
+  @@index([videoId])
+  @@index([userId])
+  @@map("video_reactions")
+}
+
+// Live Streaming
+model LiveStream {
+  id          String  @id @default(cuid())
+  userId      String
+  title       String
+  description String? @db.Text
+
+  // Stream Details
+  streamKey   String  @unique
+  streamUrl   String?
+  playbackUrl String?
+
+  // Status
+  isLive    Boolean   @default(false)
+  startedAt DateTime?
+  endedAt   DateTime?
+
+  // Stats
+  peakViewers Int @default(0)
+  totalViews  Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isLive])
+  @@map("live_streams")
+}
+
+// ============================================
+// GAMIFICATION
+// ============================================
+
+model UserPoints {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  totalPoints Int @default(0)
+  level       Int @default(1)
+
+  // Breakdown
+  forumPoints   Int @default(0)
+  blogPoints    Int @default(0)
+  helpfulPoints Int @default(0)
+  eventPoints   Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  history PointHistory[]
+
+  @@index([userId])
+  @@index([totalPoints])
+  @@map("user_points")
+}
+
+model PointHistory {
+  id           String @id @default(cuid())
+  userId       String
+  userPointsId String?
+  points       Int
+  reason       String
+  metadata     Json?
+
+  createdAt DateTime @default(now())
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userPoints UserPoints? @relation(fields: [userPointsId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userPointsId])
+  @@index([createdAt])
+  @@map("point_history")
+}
+
+model Achievement {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String @db.Text
+  icon        String?
+  points      Int    @default(0)
+
+  // Requirements
+  criteria Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userAchievements UserAchievement[]
+
+  @@index([name])
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String @id @default(cuid())
+  userId        String
+  achievementId String
+
+  earnedAt DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+  @@map("user_achievements")
+}
+
+model Leaderboard {
+  id       String @id @default(cuid())
+  userId   String
+  category String // overall, forum, blog, helpful, events
+  rank     Int
+  score    Int
+  period   String // weekly, monthly, yearly, all-time
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category, period])
+  @@index([category, period, rank])
+  @@index([userId])
+  @@map("leaderboards")
+}
+
+// ============================================
+// FAMILY TREE AI
+// ============================================
+
+model FamilyTreeSuggestion {
+  id                    String  @id @default(cuid())
+  nodeId                String
+  suggestedRelationType String // parent, child, spouse, sibling
+  suggestedNodeId       String?
+  suggestedName         String?
+
+  confidence Float // AI confidence score 0-1
+  reason     String @db.Text
+  metadata   Json?
+
+  status     String    @default("pending") // pending, accepted, rejected
+  reviewedBy String?
+  reviewedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([nodeId])
+  @@index([status])
+  @@index([confidence])
+  @@map("family_tree_suggestions")
+}
