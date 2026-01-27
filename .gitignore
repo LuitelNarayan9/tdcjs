@@ -20,6 +20,8 @@
 
 # production
 /build
+
+# Removing from github
 /task
 
 # misc
