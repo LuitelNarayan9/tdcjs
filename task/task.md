@@ -1,1227 +1,1180 @@
-# Tumin Dhanbari Chandra Jyoti Sanstha - Project Implementation Tasks
+# Tumin Dhanbari Chandra Jyoti Sanstha - Development Tasks
 
-> **Project**: Full-Stack Community Website  
-> **Stack**: Next.js 16, React 19.2, Tailwind CSS v4, PostgreSQL, Prisma 6+, NextAuth.js v5  
-> **Last Updated**: January 24, 2026
+## Project Overview
 
----
-
-# PHASE 1: CORE FEATURES (MVP)
+A comprehensive full-stack web application for a village community organization using Next.js 16, React 19, Tailwind CSS v4, Prisma 6, PostgreSQL, and Bun package manager.
 
 ---
 
-## 1. Project Foundation & Setup
+## Phase 1: Project Foundation & Setup
 
-### 1.1 Development Environment
+### 1.1 Initial Project Configuration
 
-- [ ] Configure TypeScript 5.1+ with strict mode
-- [ ] Set up ESLint & Prettier configurations
-- [ ] Configure Turbopack for development
-- [ ] Set up environment variables (.env.local)
-- [ ] Install and configure Tailwind CSS v4
-- [ ] Set up Lucide React icons
+- [x] Initialize Next.js 16 project with Bun
+- [x] Configure TypeScript strict mode
+- [x] Set up Tailwind CSS v4
+- [x] Configure ESLint and Prettier
+- [x] Set up folder structure
+- [x] Configure `next.config.ts` for Next.js 16 features
+- [x] Configure Turbopack settings
+- [x] Set up environment variables (`.env.local`)
 
 ### 1.2 Database Setup
 
-- [ ] Set up PostgreSQL database (v15+)
-- [ ] Install Prisma ORM (v6+)
-- [ ] Create complete Prisma schema (all Phase 1 models)
-- [ ] Configure Prisma Client
-- [ ] Run initial database migrations
-- [ ] Create seed script for initial data (categories, settings)
+- [ ] Set up PostgreSQL database connection
+- [ ] Configure Prisma ORM (v6+)
+  - [ ] Create Prisma client singleton (`lib/db/index.ts`)
+  - [ ] Add database connection pooling
+- [ ] Create Prisma schema from `database.md`
+  - [ ] User Management models (User, Account, Session, VerificationToken, UserPreferences)
+  - [ ] Family Tree models (FamilyNode)
+  - [ ] Forum models (ForumCategory, ForumThread, ForumPost)
+  - [ ] Blog models (BlogCategory, BlogPost, BlogTag, BlogComment)
+  - [ ] News models (NewsCategory, News)
+  - [ ] Executive Members model
+  - [ ] Contact Inquiries model
+  - [ ] Reactions model
+  - [ ] Notifications model
+  - [ ] Reports model
+  - [ ] Admin Actions model
+  - [ ] Activity Log model
+  - [ ] Analytics models (PageView, SiteMetrics)
+  - [ ] Search Index model
+  - [ ] Site Settings model
+  - [ ] Email Template model
+  - [ ] Upload model
+  - [ ] Cache Entry model
+  - [ ] Data Backup model
+- [ ] Run initial migration (`bunx prisma migrate dev`)
+- [ ] Create database seed script (`prisma/seed.ts`)
+  - [ ] Seed admin user
+  - [ ] Seed forum categories
+  - [ ] Seed blog categories
+  - [ ] Seed news categories
+  - [ ] Seed sample executive members
 
-### 1.3 Project Structure
+### 1.3 Core Utilities Setup
 
-- [ ] Create folder structure:
-  - [ ] `app/` - Next.js App Router pages
-  - [ ] `components/` - Reusable UI components
-  - [ ] `lib/` - Utilities and configurations
-  - [ ] `utils/` - Helper functions
-  - [ ] `types/` - TypeScript types/interfaces
-  - [ ] `hooks/` - Custom React hooks
-  - [ ] `actions/` - Server Actions
-- [ ] Set up path aliases in tsconfig.json
-- [ ] Create shared types and interfaces
-- [ ] Set up API route structure
+- [ ] Create utility functions (`lib/utils/`)
+  - [ ] `cn.ts` - Class name merger (clsx + tailwind-merge)
+  - [ ] `format-date.ts` - Date formatting
+  - [ ] `format-currency.ts` - Currency formatting
+  - [ ] `slugify.ts` - URL slug generator
+  - [ ] `truncate.ts` - Text truncation
+  - [ ] `sanitize.ts` - HTML sanitization (DOMPurify)
+  - [ ] `constants.ts` - App constants
+- [ ] Create validation schemas (`validations/`)
+  - [ ] `common.ts` - Shared schemas
+  - [ ] `auth.ts` - Authentication schemas
+  - [ ] `user.ts` - User schemas
 
-### 1.4 Coding Standards Implementation
+### 1.4 TypeScript Types Setup
 
-- [ ] Enable TypeScript strict mode
-- [ ] Set up consistent naming conventions (camelCase, PascalCase)
-- [ ] Create component composition patterns
-- [ ] Set up custom hooks template
-- [ ] Implement error boundary components
-- [ ] Configure accessibility linting rules
-
----
-
-## 2. Authentication System (NextAuth.js v5)
-
-### 2.1 Core Authentication Setup
-
-- [ ] Install and configure NextAuth.js v5 (Auth.js)
-- [ ] Create auth configuration file
-- [ ] Implement Credentials Provider (email/password)
-- [ ] Set up session management with secure cookies
-- [ ] Implement JWT token management
-- [ ] Configure bcrypt password hashing (salt rounds: 12)
-
-### 2.2 Registration Flow
-
-- [ ] Create registration page UI
-- [ ] Implement registration form with React Hook Form + Zod
-- [ ] Add password strength indicator
-- [ ] Implement email verification flow
-- [ ] Create family association dropdown/search
-- [ ] Handle admin approval workflow (optional)
-- [ ] Create UserPreferences on registration
-
-### 2.3 Login Flow
-
-- [ ] Create login page UI
-- [ ] Implement login form with validation
-- [ ] Add "Remember Me" functionality
-- [ ] Implement forgot password flow
-- [ ] Create password reset email template
-- [ ] Optional: Add Google/Facebook OAuth providers
-
-### 2.4 User Profile Management
-
-- [ ] Create user profile page UI
-- [ ] Implement profile edit functionality
-- [ ] Add profile picture upload (with Next.js Image optimization)
-- [ ] Create change password feature
-- [ ] Build activity history display (ActivityLog)
-- [ ] Implement notification preferences (UserPreferences)
-
-### 2.5 Role-Based Access Control (RBAC)
-
-- [ ] Define user roles (USER, ADMIN, MODERATOR)
-- [ ] Create middleware for route protection
-- [ ] Implement permission checking utilities
-- [ ] Create protected route wrappers
-- [ ] Handle user status (ACTIVE, PENDING, SUSPENDED, DELETED)
+- [ ] Create type definitions (`types/`)
+  - [ ] `index.ts` - Export all types
+  - [ ] `auth.ts` - Auth types
+  - [ ] `user.ts` - User types
+  - [ ] `api.ts` - API response types
+  - [ ] `next-auth.d.ts` - NextAuth augmentation
 
 ---
 
-## 3. Landing Page
+## Phase 2: Authentication System
 
-### 3.1 Header Component
+### 2.1 NextAuth.js v5 Configuration
 
-- [ ] Create responsive header with navigation
-- [ ] Implement Sanstha logo placement
-- [ ] Build navigation menu (Home, News, Forum, Blogs, Family Tree, About, Contact)
-- [ ] Create responsive hamburger menu for mobile
-- [ ] Implement sticky header with scroll animations
-- [ ] Add conditional Login/Register or User Profile display
-- [ ] Prepare global search bar placeholder
+- [ ] Install NextAuth.js v5 (`bun add next-auth@beta`)
+- [ ] Configure auth options (`lib/auth/`)
+  - [ ] Create `config.ts` - Main NextAuth config
+  - [ ] Create `options.ts` - Auth options
+  - [ ] Create `callbacks.ts` - Session/JWT callbacks
+  - [ ] Create `providers.ts` - Credentials provider
+- [ ] Create auth API route (`app/api/auth/[...nextauth]/route.ts`)
+- [ ] Set up session provider (`components/providers/auth-provider.tsx`)
 
-### 3.2 Hero Section
+### 2.2 Password Management
 
-- [ ] Create full-width banner with village imagery
-- [ ] Implement animated text (village name, tagline)
-- [ ] Add CTA buttons (Explore Community, Join Forum)
-- [ ] Implement parallax scrolling effect
-- [ ] Set up View Transitions API for smooth navigation
+- [ ] Create password utilities (`lib/auth/password.ts`)
+  - [ ] Hash password function (bcrypt, 12 salt rounds)
+  - [ ] Verify password function
+  - [ ] Password strength validator
+- [ ] Create token utilities (`lib/auth/tokens.ts`)
+  - [ ] Generate verification token
+  - [ ] Generate password reset token
+  - [ ] Verify tokens
 
-### 3.3 About Section
+### 2.3 Registration Flow
 
-- [ ] Create village introduction content
-- [ ] Build statistics cards (families, population, established year, members)
-- [ ] Implement image gallery carousel with lazy loading
-- [ ] Add Next.js Image optimization
+- [ ] Create registration validation schema (`validations/auth.ts`)
+- [ ] Create register server action (`actions/auth/register.ts`)
+- [ ] Create registration page (`app/[locale]/(auth)/register/page.tsx`)
+- [ ] Create registration form component (`app/[locale]/(auth)/register/_components/register-form.tsx`)
+  - [ ] Full name input
+  - [ ] Email input
+  - [ ] Phone number input
+  - [ ] Password input with strength indicator
+  - [ ] Confirm password input
+  - [ ] Family association dropdown
+  - [ ] Village address input
+  - [ ] Profile picture upload (optional)
+  - [ ] Date of birth picker (optional)
+  - [ ] Form validation with Zod
+  - [ ] Submit button with loading state
 
-### 3.4 Features Showcase
+### 2.4 Login Flow
 
-- [ ] Create feature cards grid layout
-- [ ] Implement hover animations (Framer Motion/CSS)
-- [ ] Add interactive effects
-- [ ] Link to respective sections
+- [ ] Create login validation schema
+- [ ] Create login server action (`actions/auth/login.ts`)
+- [ ] Create login page (`app/[locale]/(auth)/login/page.tsx`)
+- [ ] Create login form component (`app/[locale]/(auth)/login/_components/login-form.tsx`)
+  - [ ] Email input
+  - [ ] Password input
+  - [ ] Remember me checkbox
+  - [ ] Forgot password link
+  - [ ] Form validation
+  - [ ] Error handling
 
-### 3.5 News Highlights
+### 2.5 Email Verification
 
-- [ ] Create news preview cards (3-4 items)
-- [ ] Implement "View All News" button
-- [ ] Add date and category tags
-- [ ] Set up "use cache" directive for performance
+- [ ] Set up email service (`lib/email/`)
+  - [ ] Configure Resend/SendGrid client (`client.ts`)
+  - [ ] Create email templates (`templates/`)
+    - [ ] `verify-email.tsx`
+  - [ ] Create send function (`send.ts`)
+- [ ] Create verify email page (`app/[locale]/(auth)/verify-email/page.tsx`)
+- [ ] Create verify email server action (`actions/auth/verify-email.ts`)
 
-### 3.6 Events/Announcements Section
+### 2.6 Password Reset Flow
 
-- [ ] Create events calendar preview
-- [ ] Build announcements banner
-- [ ] Implement real-time updates (optional)
+- [ ] Create forgot password page (`app/[locale]/(auth)/forgot-password/page.tsx`)
+- [ ] Create forgot password server action (`actions/auth/forgot-password.ts`)
+- [ ] Create reset password email template (`lib/email/templates/reset-password.tsx`)
+- [ ] Create reset password page (`app/[locale]/(auth)/reset-password/page.tsx`)
+- [ ] Create reset password server action (`actions/auth/reset-password.ts`)
 
-### 3.7 Testimonials Section
+### 2.7 Auth Layout & Guards
 
-- [ ] Create testimonials slider
-- [ ] Add community member quotes with photos
-- [ ] Implement smooth transitions
-
-### 3.8 Footer Component
-
-- [ ] Create multi-column footer layout
-- [ ] Add About Sanstha brief
-- [ ] Build Quick Links section
-- [ ] Add contact information
-- [ ] Implement social media links
-- [ ] Add newsletter subscription (optional)
-- [ ] Include copyright and legal links
-
----
-
-## 4. News Section
-
-### 4.1 News Categories Setup
-
-- [ ] Create NewsCategory model API routes
-- [ ] Seed initial categories (Village News, Events, Announcements)
-- [ ] Build category management (admin)
-
-### 4.2 News List Page
-
-- [ ] Create news listing page UI
-- [ ] Implement card-based grid layout
-- [ ] Add featured news highlighting
-- [ ] Build filter sidebar (categories, date range)
-- [ ] Implement pagination
-- [ ] Add skeleton loaders during fetch
-- [ ] Implement search functionality
-
-### 4.3 News Detail Page
-
-- [ ] Create single news article view
-- [ ] Display full article with images
-- [ ] Add related news section
-- [ ] Implement share buttons
-- [ ] Set up View Transitions for smooth navigation
-
-### 4.4 News Admin Management
-
-- [ ] Create news creation form (admin)
-- [ ] Implement featured image upload (auto-optimized)
-- [ ] Add category and priority selection
-- [ ] Build publish/draft status toggle
-- [ ] Create priority/featured flag options
-- [ ] Implement edit/delete functionality
-- [ ] Set up cache revalidation (revalidateTag)
+- [ ] Create auth layout (`app/[locale]/(auth)/layout.tsx`)
+  - [ ] Redirect authenticated users
+  - [ ] Clean auth-focused design
+- [ ] Create auth guard component (`components/features/auth/auth-guard.tsx`)
+- [ ] Create role guard component (`components/features/auth/role-guard.tsx`)
+- [ ] Create permissions helper (`lib/auth/permissions.ts`)
 
 ---
 
-## 5. Forum System
+## Phase 3: Core UI Components
 
-### 5.1 Forum Categories
+### 3.1 Design System Setup
 
-- [ ] Create ForumCategory model API routes
-- [ ] Seed categories (General Discussion, Announcements, Village Development, etc.)
-- [ ] Create forum categories list view
-- [ ] Implement category cards with icons/colors
-- [ ] Add thread count and last activity display
-- [ ] Build category management (admin)
-- [ ] Set up "use cache" for categories
+- [ ] Configure Tailwind CSS theme
+  - [ ] Color palette (Sikkim-inspired: blues, greens, earth tones)
+  - [ ] Typography (Inter, Poppins, Outfit fonts)
+  - [ ] Spacing and sizing
+  - [ ] Dark mode support
+- [ ] Create global styles (`styles/globals.css`)
+- [ ] Create theme CSS variables (`styles/themes.css`)
+- [ ] Create animations (`styles/animations.css`)
+- [ ] Create fonts CSS (`styles/fonts.css`)
 
-### 5.2 Thread Listing
+### 3.2 Atomic UI Components (`components/ui/`)
 
-- [ ] Create thread list view per category
-- [ ] Implement thread cards with metadata
-- [ ] Add view counter and reply count
-- [ ] Build pagination/infinite scroll
-- [ ] Implement sort options (Latest, Popular, Most Replied, Unanswered)
-- [ ] Add skeleton loaders
+- [ ] `button.tsx` - Button with variants
+- [ ] `input.tsx` - Form input
+- [ ] `textarea.tsx` - Textarea
+- [ ] `select.tsx` - Select dropdown
+- [ ] `checkbox.tsx` - Checkbox
+- [ ] `switch.tsx` - Toggle switch
+- [ ] `card.tsx` - Card container
+- [ ] `badge.tsx` - Status badge
+- [ ] `avatar.tsx` - User avatar
+- [ ] `modal.tsx` - Modal dialog
+- [ ] `dialog.tsx` - Dialog component
+- [ ] `dropdown.tsx` - Dropdown menu
+- [ ] `tabs.tsx` - Tab navigation
+- [ ] `accordion.tsx` - Accordion
+- [ ] `tooltip.tsx` - Tooltip
+- [ ] `toast.tsx` - Toast notifications
+- [ ] `skeleton.tsx` - Loading skeleton
+- [ ] `spinner.tsx` - Loading spinner
+- [ ] `progress.tsx` - Progress bar
+- [ ] `pagination.tsx` - Pagination
+- [ ] `breadcrumb.tsx` - Breadcrumb navigation
+- [ ] `table.tsx` - Data table
 
-### 5.3 Thread Creation & Management
+### 3.3 Layout Components (`components/layouts/`)
 
-- [ ] Create "New Thread" form UI
-- [ ] Integrate rich text editor (TipTap/Lexical)
-- [ ] Implement category selection
-- [ ] Add thread edit functionality (with time limit)
-- [ ] Create thread delete functionality
-- [ ] Build pin/lock/feature options (admin)
-- [ ] Add SEO meta tags
+- [ ] Header (`header/`)
+  - [ ] `header.tsx` - Main header
+  - [ ] `nav-menu.tsx` - Navigation menu
+  - [ ] `mobile-menu.tsx` - Mobile hamburger menu
+  - [ ] `user-menu.tsx` - User dropdown
+  - [ ] `search-bar.tsx` - Global search
+  - [ ] `notification-bell.tsx` - Notifications
+  - [ ] `language-switcher.tsx` - Language toggle
+- [ ] Footer (`footer/`)
+  - [ ] `footer.tsx` - Main footer
+  - [ ] `footer-column.tsx` - Footer sections
+  - [ ] `social-links.tsx` - Social media links
+- [ ] Sidebar (`sidebar/`)
+  - [ ] `sidebar.tsx` - Sidebar container
+  - [ ] `sidebar-nav.tsx` - Sidebar navigation
+- [ ] `container.tsx` - Container wrapper
 
-### 5.4 Posts & Replies
+### 3.4 Form Components (`components/forms/`)
 
-- [ ] Create thread detail view
-- [ ] Build reply form with rich text editor
-- [ ] Implement @mentions functionality
-- [ ] Add quote previous posts feature
-- [ ] Build likes/reactions system (React 19 optimistic updates)
-- [ ] Implement post pagination
-- [ ] Add post edit/delete for own posts
-- [ ] Track isEdited and editedAt
+- [ ] `form-field.tsx` - Form field wrapper
+- [ ] `form-error.tsx` - Error message
+- [ ] `form-label.tsx` - Form label
+- [ ] `image-upload.tsx` - Single image upload
+- [ ] `file-upload.tsx` - File upload
+- [ ] `rich-text-editor.tsx` - TipTap/Lexical editor
+- [ ] `date-picker.tsx` - Date picker
+- [ ] `tag-input.tsx` - Tag input
 
-### 5.5 Forum Search & Filter
+### 3.5 Shared Components (`components/shared/`)
 
-- [ ] Implement keyword search
-- [ ] Add category filter
-- [ ] Create advanced sort options
-- [ ] Build "Unanswered" filter
+- [ ] `empty-state.tsx` - Empty state display
+- [ ] `error-message.tsx` - Error display
+- [ ] `loading-spinner.tsx` - Loading indicator
+- [ ] `loading-skeleton.tsx` - Skeleton loader
+- [ ] `image-with-fallback.tsx` - Image with fallback
+- [ ] `scroll-to-top.tsx` - Scroll to top button
+- [ ] `seo-head.tsx` - SEO meta tags
 
-### 5.6 Forum Moderation
+### 3.6 Context Providers (`components/providers/`)
 
-- [ ] Create Report model integration
-- [ ] Build report/flag system UI
-- [ ] Create admin moderation panel
-- [ ] Implement user ban functionality
-- [ ] Add content approval workflow (optional)
-- [ ] Log admin actions (AdminAction)
-
-### 5.7 Real-time Features
-
-- [ ] Set up Server-Sent Events (SSE)
-- [ ] Implement new reply indicators
-- [ ] Add real-time notifications
-
----
-
-## 6. Blog System
-
-### 6.1 Blog Categories & Tags
-
-- [ ] Create BlogCategory model API routes
-- [ ] Seed categories (Village News, Cultural Heritage, Success Stories, etc.)
-- [ ] Create BlogTag model API routes
-- [ ] Build category/tag management (admin)
-
-### 6.2 Blog List Page
-
-- [ ] Create blog listing page UI
-- [ ] Implement grid/list view toggle
-- [ ] Add featured posts section
-- [ ] Build pagination/infinite scroll
-- [ ] Add category and search filters
-- [ ] Implement skeleton loaders
-
-### 6.3 Blog Post Creation (Admin)
-
-- [ ] Create blog post editor page
-- [ ] Integrate rich text editor (TipTap/Lexical)
-- [ ] Implement featured image upload
-- [ ] Add SEO meta tags fields (metaTitle, metaDescription, keywords)
-- [ ] Build category/tag selection
-- [ ] Create publish/draft/schedule options
-- [ ] Implement read time calculation
-
-### 6.4 Single Blog Page
-
-- [ ] Create blog post detail view
-- [ ] Display full-width featured image (Next.js Image)
-- [ ] Show author info and publish date
-- [ ] Implement Table of Contents (TOC)
-- [ ] Add social share buttons
-- [ ] Build related posts section
-- [ ] Set up View Transitions
-
-### 6.5 Comments System (BlogComment)
-
-- [ ] Create comments section UI
-- [ ] Implement nested/threaded comments (parentId)
-- [ ] Add comment likes/reactions
-- [ ] Build comment report functionality
-- [ ] Implement admin moderation (isApproved)
-- [ ] Set up email notifications for new comments
-- [ ] Add optimistic updates (React 19)
-
-### 6.6 Blog Caching Strategy
-
-- [ ] Implement "use cache" for static blog posts
-- [ ] Set up dynamic comments with incremental updates
-- [ ] Configure revalidateTag() for content updates
+- [ ] `theme-provider.tsx` - Theme context
+- [ ] `toast-provider.tsx` - Toast notifications
+- [ ] `modal-provider.tsx` - Modal manager
+- [ ] `query-provider.tsx` - React Query provider
 
 ---
 
-## 7. Village Family Tree
+## Phase 4: Landing Page (Public)
 
-### 7.1 Data Structure & Models
+### 4.1 Landing Page Structure
 
-- [ ] Create FamilyNode model API routes
-- [ ] Set up parent-child relationships (parentId)
-- [ ] Configure spousal relationships (spouseId)
-- [ ] Add privacy controls (isPrivate)
-- [ ] Handle deceased flag (isDeceased)
+- [ ] Create public layout (`app/[locale]/(public)/layout.tsx`)
+- [ ] Create landing page (`app/[locale]/(public)/page.tsx`)
+- [ ] Create loading state (`app/[locale]/(public)/loading.tsx`)
 
-### 7.2 D3.js Tree Visualization
+### 4.2 Landing Page Sections (`components/features/landing/`)
 
-- [ ] Install and set up D3.js v7
-- [ ] Create hierarchical tree layout (top-down or left-right)
-- [ ] Implement node representations (photos, icons)
-- [ ] Add color coding by generation
-- [ ] Distinguish male/female/deceased nodes
-
-### 7.3 Interactive Controls
-
-- [ ] Implement zoom in/out functionality (D3 zoom behavior)
-- [ ] Add pan across tree
-- [ ] Create person search functionality
-- [ ] Build branch focus/expand/collapse
-- [ ] Add full-screen mode
-- [ ] Optimize with Canvas/SVG for large trees
-
-### 7.4 Alternative Views
-
-- [ ] Create list view (alphabetical)
-- [ ] Build generation view
-- [ ] Implement timeline view (optional)
-
-### 7.5 User Edit Functionality
-
-- [ ] Create edit modal/sidebar form
-- [ ] Implement image upload for profile pictures
-- [ ] Build relationship management interface
-- [ ] Add validation for circular relationships
-- [ ] Restrict user to edit only own family node
-
-### 7.6 Admin Family Tree Management
-
-- [ ] Grant full edit access to admins
-- [ ] Implement add new root nodes (founding families)
-- [ ] Build merge duplicate entries feature
-- [ ] Add reorganize connections functionality
-- [ ] Create bulk import/export (CSV)
-- [ ] Build change history/audit log
-
-### 7.7 Privacy Controls
-
-- [ ] Implement private node marking
-- [ ] Show only name for private nodes
-- [ ] Add admin privacy override
-
-### 7.8 Performance Optimization
-
-- [ ] Implement virtualization (react-window)
-- [ ] Add lazy loading for tree branches
-- [ ] Set up "use cache" for tree data
-- [ ] Enable incremental updates
+- [ ] `hero-section.tsx`
+  - [ ] Full-width banner with village imagery
+  - [ ] Animated text overlay
+  - [ ] CTA buttons ("Explore Our Community", "Join the Forum")
+  - [ ] Parallax scrolling effect
+- [ ] `about-section.tsx`
+  - [ ] Village introduction text
+  - [ ] Statistics cards (families, population, established year, members)
+  - [ ] Image gallery carousel
+- [ ] `features-section.tsx`
+  - [ ] Grid layout showcasing features
+  - [ ] Interactive hover effects
+  - [ ] Links to Forum, Family Tree, News, Heritage
+- [ ] `stats-section.tsx`
+  - [ ] Animated counter stats
+- [ ] `news-highlights.tsx`
+  - [ ] Latest 3-4 news with thumbnails
+  - [ ] "View All News" button
+  - [ ] Date and category tags
+- [ ] `events-preview.tsx`
+  - [ ] Upcoming events calendar preview
+  - [ ] Important announcements banner
+- [ ] `testimonials.tsx`
+  - [ ] Community member quotes slider
+  - [ ] Profile pictures
+- [ ] `cta-section.tsx`
+  - [ ] Call to action for joining
 
 ---
 
-## 8. About Sanstha Page
+## Phase 5: News Section (Public)
 
-### 8.1 Sanstha Information
+### 5.1 News Database Queries
 
-- [ ] Create About page layout
-- [ ] Add history section
-- [ ] Build Mission & Vision statements
-- [ ] Display objectives and goals
-- [ ] Add achievements and milestones
-- [ ] Create organizational structure chart
+- [ ] Create news queries (`lib/db/queries/news.ts`)
+  - [ ] Get all news (paginated)
+  - [ ] Get news by slug
+  - [ ] Get featured news
+  - [ ] Get news by category
+- [ ] Create news mutations (`lib/db/mutations/news.ts`)
+  - [ ] Create news
+  - [ ] Update news
+  - [ ] Delete news
+  - [ ] Increment views
 
-### 8.2 Executive Members Section
+### 5.2 News Validation
 
-- [ ] Create ExecutiveMember model API routes
-- [ ] Create member card component
-- [ ] Display member photo, name, designation
-- [ ] Show tenure period (tenureStart, tenureEnd)
-- [ ] Implement grid layout (responsive)
-- [ ] Add hierarchical ordering (priority)
-- [ ] Create past executives archive (MemberStatus.PAST)
+- [ ] Create news validation schema (`validations/news.ts`)
+- [ ] Create news types (`types/news.ts`)
 
-### 8.3 Executive Management (Admin)
+### 5.3 News Pages
 
-- [ ] Create add executive member form
-- [ ] Implement edit member details
-- [ ] Add remove member functionality
-- [ ] Build tenure date management
-- [ ] Create member reorder interface
+- [ ] Create news list page (`app/[locale]/(public)/news/page.tsx`)
+- [ ] Create news loading state (`app/[locale]/(public)/news/loading.tsx`)
+- [ ] Create news detail page (`app/[locale]/(public)/news/[slug]/page.tsx`)
+- [ ] Create news detail loading (`app/[locale]/(public)/news/[slug]/loading.tsx`)
 
-### 8.4 Documents Section (Basic)
+### 5.4 News Components (`app/[locale]/(public)/news/_components/`)
 
-- [ ] Add constitution/bylaws PDF download
-- [ ] Create meeting minutes section (protected)
-- [ ] Add annual reports
-- [ ] Include financial statements (protected)
+- [ ] `news-card.tsx` - News card display
+- [ ] `news-grid.tsx` - News grid layout
+- [ ] `news-filters.tsx` - Category filters
+- [ ] `featured-news.tsx` - Featured news section
 
-### 8.5 Caching
+### 5.5 News API Routes
 
-- [ ] Implement "use cache" for static content
-- [ ] Set up revalidation for member updates
-
----
-
-## 9. Contact Us Page
-
-### 9.1 Contact Form
-
-- [ ] Create contact form UI
-- [ ] Implement ContactInquiry model
-- [ ] Add form fields (name, email, phone, subject, message)
-- [ ] Add attachment upload option
-- [ ] Integrate reCAPTCHA/CAPTCHA
-- [ ] Implement Zod + React Hook Form validation
-- [ ] Create success/error toast notifications
-- [ ] Set up Server Actions for submission
-
-### 9.2 Contact Information Display
-
-- [ ] Display Sanstha office address
-- [ ] Embed Google Maps
-- [ ] Add "Get Directions" link
-- [ ] Show phone numbers and email
-- [ ] Display office hours
-- [ ] Add social media links
-
-### 9.3 Email Notifications
-
-- [ ] Set up Resend/SendGrid integration
-- [ ] Create admin notification email
-- [ ] Create auto-reply for user (optional)
-- [ ] Store submissions in database
-
-### 9.4 Admin Inquiry Management
-
-- [ ] Create inquiry listing page
-- [ ] Implement InquiryStatus (UNREAD, READ, REPLIED, RESOLVED, ARCHIVED)
-- [ ] Build reply functionality
-- [ ] Add archive/delete options
-- [ ] Create data export feature
-- [ ] Support InquiryPriority sorting
+- [ ] Create news API (`app/api/news/route.ts`) - GET all
+- [ ] Create news detail API (`app/api/news/[newsId]/route.ts`) - GET, PUT, DELETE
+- [ ] Create news views API (`app/api/news/[newsId]/views/route.ts`) - Track views
 
 ---
 
-## 10. Admin Dashboard
+## Phase 6: Contact Us Page (Public)
 
-### 10.1 Dashboard Overview
+### 6.1 Contact Form Setup
 
-- [ ] Create dashboard layout
-- [ ] Build statistics widgets:
-  - [ ] Total registered users
-  - [ ] Active users (last 30 days)
-  - [ ] Total forum threads/posts
-  - [ ] Total blog posts
-  - [ ] News articles count
-  - [ ] Contact inquiries (unread)
-- [ ] Add recent activity feed (ActivityLog)
-- [ ] Create quick action buttons
-- [ ] Implement real-time updates (SSE)
+- [ ] Create contact validation schema (`validations/contact.ts`)
+- [ ] Create contact queries (`lib/db/queries/contact.ts`)
+- [ ] Create contact mutations (`lib/db/mutations/contact.ts`)
+- [ ] Create contact types (`types/contact.ts`)
 
-### 10.2 User Management
+### 6.2 Contact Page
 
-- [ ] Create user listing page (with pagination)
-- [ ] Build user detail view
-- [ ] Implement approve/suspend/delete users (UserStatus)
-- [ ] Add admin role assignment
-- [ ] Log all actions (AdminAction)
+- [ ] Create contact page (`app/[locale]/(public)/contact/page.tsx`)
+- [ ] Create contact server action (`actions/contact/send-inquiry.ts`)
 
-### 10.3 Content Management
+### 6.3 Contact Components (`app/[locale]/(public)/contact/_components/`)
 
-- [ ] Forum moderation panel (flagged posts, bans)
-- [ ] Blog management (CRUD)
-- [ ] News management (CRUD, feature articles)
-- [ ] Family tree management
-- [ ] Executive members management
-- [ ] Contact inquiries management
+- [ ] `contact-form.tsx`
+  - [ ] Full name input
+  - [ ] Email input
+  - [ ] Phone number input (optional)
+  - [ ] Subject dropdown
+  - [ ] Message textarea
+  - [ ] Attachment upload (optional)
+  - [ ] CAPTCHA integration
+  - [ ] Submit with loading state
+- [ ] `contact-info.tsx` - Address, phone, email display
+- [ ] `map-embed.tsx` - Google Maps embed
 
-### 10.4 Site Settings
+### 6.4 Contact API
 
-- [ ] Create SiteSetting model API routes
-- [ ] Site title and tagline configuration
-- [ ] Logo and favicon management
-- [ ] Contact information settings
-- [ ] Social media links configuration
-
-### 10.5 SEO Settings
-
-- [ ] Meta tags configuration
-- [ ] Sitemap generation
-
-### 10.6 Email Templates
-
-- [ ] Create EmailTemplate model API routes
-- [ ] Welcome email template
-- [ ] Password reset template
-- [ ] Notification templates (forum, blog, news)
-
-### 10.7 Performance Monitoring
-
-- [ ] Display cache analytics
-- [ ] Show page load metrics (SiteMetrics)
-- [ ] Add database query performance stats
+- [ ] Create contact API (`app/api/contact/route.ts`) - POST submissions
+- [ ] Create contact detail API (`app/api/contact/[inquiryId]/route.ts`)
 
 ---
 
-## 11. Core UI/UX Components
+## Phase 7: Protected Routes Layout
 
-### 11.1 Design System
+### 7.1 Protected Layout Setup
 
-- [ ] Set up color scheme (Sikkim-inspired: blues, greens, earth tones)
-- [ ] Configure typography (Inter, Poppins, Open Sans)
-- [ ] Create CSS variables for theming
-- [ ] Implement dark mode support (optional)
+- [ ] Create protected layout (`app/[locale]/(protected)/layout.tsx`)
+  - [ ] Session validation
+  - [ ] Redirect unauthenticated users
+  - [ ] Header with user menu
+  - [ ] Sidebar navigation (optional)
+- [ ] Create loading state (`app/[locale]/(protected)/loading.tsx`)
 
-### 11.2 Core Components
+### 7.2 User Dashboard
 
-- [ ] Create Button component (primary, secondary, tertiary with ripple effects)
-- [ ] Build Card component with hover animations
-- [ ] Create Form components (Input, Select, Textarea with floating labels)
-- [ ] Build Modal component (React portals)
-- [ ] Create Toast/Notification component
-- [ ] Build Loading states (Skeletons, Spinners)
-- [ ] Create Empty state components
-
-### 11.3 Animations
-
-- [ ] Implement View Transitions API
-- [ ] Add hover effects to interactive elements
-- [ ] Create scroll animations (subtle, performance-conscious)
-- [ ] Build micro-interactions
-- [ ] Optimize for CSS-first animations
-
-### 11.4 Accessibility
-
-- [ ] Ensure WCAG 2.1 AA compliance
-- [ ] Add proper ARIA labels
-- [ ] Implement keyboard navigation
-- [ ] Test with screen readers
+- [ ] Create dashboard page (`app/[locale]/(protected)/dashboard/page.tsx`)
+- [ ] Create dashboard loading (`app/[locale]/(protected)/dashboard/loading.tsx`)
+- [ ] Create dashboard components (`app/[locale]/(protected)/dashboard/_components/`)
+  - [ ] `stats-overview.tsx` - User stats
+  - [ ] `recent-activity.tsx` - Activity feed
+  - [ ] `quick-actions.tsx` - Quick action buttons
+  - [ ] `upcoming-events.tsx` - Events widget
+  - [ ] `notifications-widget.tsx` - Notifications
 
 ---
 
-## 12. Core Notifications System
+## Phase 8: User Profile System
 
-### 12.1 Notification Types (Phase 1)
+### 8.1 Profile Database Operations
 
-- [ ] Implement forum reply notifications (FORUM_REPLY)
-- [ ] Add blog comment notifications (BLOG_COMMENT)
-- [ ] Create @mention notifications (MENTION)
-- [ ] Add like/reaction notifications (LIKE)
-- [ ] Build admin message notifications (ADMIN_MESSAGE)
-- [ ] Create system alerts (SYSTEM_ALERT)
-- [ ] Add news update notifications (NEWS_UPDATE)
-- [ ] Build event reminders (EVENT_REMINDER)
+- [ ] Create user queries (`lib/db/queries/users.ts`)
+  - [ ] Get user by ID
+  - [ ] Get user profile
+  - [ ] Get user activity
+- [ ] Create user mutations (`lib/db/mutations/users.ts`)
+  - [ ] Update profile
+  - [ ] Update avatar
+  - [ ] Update password
+  - [ ] Update preferences
 
-### 12.2 Notification UI
+### 8.2 Profile Validation
 
-- [ ] Create notification dropdown in header
-- [ ] Build notification bell with unread count
-- [ ] Create notification list view
-- [ ] Implement mark as read functionality
-- [ ] Add notification preferences page
+- [ ] Create user validation schema (`validations/user.ts`)
+- [ ] Create profile types (`types/user.ts`)
 
-### 12.3 Email Notifications
+### 8.3 Profile Pages
 
-- [ ] Set up email notification templates
-- [ ] Implement user preference checking
-- [ ] Create digest emails (optional)
+- [ ] Create profile page (`app/[locale]/(protected)/profile/page.tsx`)
+- [ ] Create profile loading (`app/[locale]/(protected)/profile/loading.tsx`)
+- [ ] Create edit profile page (`app/[locale]/(protected)/profile/edit/page.tsx`)
+- [ ] Create settings page (`app/[locale]/(protected)/profile/settings/page.tsx`)
+
+### 8.4 Profile Server Actions
+
+- [ ] `actions/users/update-profile.ts`
+- [ ] `actions/users/update-avatar.ts`
+- [ ] `actions/users/update-password.ts`
+- [ ] `actions/users/update-preferences.ts`
+
+### 8.5 Profile Components (`app/[locale]/(protected)/profile/_components/`)
+
+- [ ] `profile-header.tsx` - Profile header with avatar
+- [ ] `profile-stats.tsx` - Stats display
+- [ ] `activity-feed.tsx` - Activity list
+- [ ] `edit-profile-form.tsx` - Edit form
+- [ ] `settings-form.tsx` - Settings form
+
+### 8.6 Profile API Routes
+
+- [ ] Create users API (`app/api/users/route.ts`) - GET all (admin)
+- [ ] Create user detail API (`app/api/users/[userId]/route.ts`)
+- [ ] Create profile API (`app/api/users/profile/route.ts`)
 
 ---
 
-## 13. Reactions & Engagement
+## Phase 9: Forum System
+
+### 9.1 Forum Database Operations
+
+- [ ] Create forum queries (`lib/db/queries/forum.ts`)
+  - [ ] Get all categories
+  - [ ] Get category by slug
+  - [ ] Get threads (paginated, filtered)
+  - [ ] Get thread by slug
+  - [ ] Get posts by thread
+  - [ ] Get thread stats
+- [ ] Create forum mutations (`lib/db/mutations/forum.ts`)
+  - [ ] Create thread
+  - [ ] Update thread
+  - [ ] Delete thread
+  - [ ] Create post
+  - [ ] Update post
+  - [ ] Delete post
+  - [ ] Pin/unpin thread
+  - [ ] Lock/unlock thread
+  - [ ] Increment thread views
+
+### 9.2 Forum Validation
+
+- [ ] Create forum validation schema (`validations/forum.ts`)
+- [ ] Create forum types (`types/forum.ts`)
+
+### 9.3 Forum Pages
+
+- [ ] Create forum home page (`app/[locale]/(protected)/forum/page.tsx`)
+- [ ] Create forum loading (`app/[locale]/(protected)/forum/loading.tsx`)
+- [ ] Create category page (`app/[locale]/(protected)/forum/[categorySlug]/page.tsx`)
+- [ ] Create category loading (`app/[locale]/(protected)/forum/[categorySlug]/loading.tsx`)
+- [ ] Create thread page (`app/[locale]/(protected)/forum/thread/[threadSlug]/page.tsx`)
+- [ ] Create thread loading (`app/[locale]/(protected)/forum/thread/[threadSlug]/loading.tsx`)
+- [ ] Create new thread page (`app/[locale]/(protected)/forum/thread/new/page.tsx`)
+
+### 9.4 Forum Server Actions
+
+- [ ] `actions/forum/create-thread.ts`
+- [ ] `actions/forum/update-thread.ts`
+- [ ] `actions/forum/delete-thread.ts`
+- [ ] `actions/forum/create-post.ts`
+- [ ] `actions/forum/update-post.ts`
+- [ ] `actions/forum/delete-post.ts`
+- [ ] `actions/forum/pin-thread.ts`
+
+### 9.5 Forum Components (`app/[locale]/(protected)/forum/_components/`)
+
+- [ ] `category-card.tsx` - Category display card
+- [ ] `thread-card.tsx` - Thread list item
+- [ ] `thread-list.tsx` - Thread list container
+- [ ] `post-card.tsx` - Post display
+- [ ] `post-editor.tsx` - Rich text post editor
+- [ ] `thread-filters.tsx` - Sort/filter controls
+- [ ] `forum-search.tsx` - Forum search
+- [ ] `thread-actions.tsx` - Thread action buttons
+
+### 9.6 Forum Feature Components (`components/features/forum/`)
+
+- [ ] `thread-composer.tsx` - Create thread form
+- [ ] `post-composer.tsx` - Create post form
+- [ ] `thread-actions.tsx` - Thread actions
+- [ ] `post-actions.tsx` - Post actions
+- [ ] `mention-autocomplete.tsx` - @mentions
+
+### 9.7 Forum API Routes
+
+- [ ] Create categories API (`app/api/forum/categories/route.ts`)
+- [ ] Create category detail API (`app/api/forum/categories/[categoryId]/route.ts`)
+- [ ] Create threads API (`app/api/forum/threads/route.ts`)
+- [ ] Create thread detail API (`app/api/forum/threads/[threadId]/route.ts`)
+- [ ] Create thread posts API (`app/api/forum/threads/[threadId]/posts/route.ts`)
+- [ ] Create thread views API (`app/api/forum/threads/[threadId]/views/route.ts`)
+- [ ] Create post detail API (`app/api/forum/posts/[postId]/route.ts`)
+
+---
+
+## Phase 10: Blog System
+
+### 10.1 Blog Database Operations
+
+- [ ] Create blog queries (`lib/db/queries/blogs.ts`)
+  - [ ] Get all blogs (paginated, filtered)
+  - [ ] Get blog by slug
+  - [ ] Get blogs by category
+  - [ ] Get featured blogs
+  - [ ] Get related blogs
+  - [ ] Get blog comments
+- [ ] Create blog mutations (`lib/db/mutations/blogs.ts`)
+  - [ ] Create blog
+  - [ ] Update blog
+  - [ ] Delete blog
+  - [ ] Publish/unpublish blog
+  - [ ] Create comment
+  - [ ] Delete comment
+
+### 10.2 Blog Validation
+
+- [ ] Create blog validation schema (`validations/blog.ts`)
+- [ ] Create comment validation schema (`validations/comment.ts`)
+- [ ] Create blog types (`types/blog.ts`)
+
+### 10.3 Blog Pages
+
+- [ ] Create blog list page (`app/[locale]/(protected)/blogs/page.tsx`)
+- [ ] Create blog loading (`app/[locale]/(protected)/blogs/loading.tsx`)
+- [ ] Create blog detail page (`app/[locale]/(protected)/blogs/[slug]/page.tsx`)
+- [ ] Create blog detail loading (`app/[locale]/(protected)/blogs/[slug]/loading.tsx`)
+- [ ] Create blog category page (`app/[locale]/(protected)/blogs/category/[categorySlug]/page.tsx`)
+
+### 10.4 Blog Server Actions
+
+- [ ] `actions/blogs/add-comment.ts`
+
+### 10.5 Blog Components (`app/[locale]/(protected)/blogs/_components/`)
+
+- [ ] `blog-card.tsx` - Blog preview card
+- [ ] `blog-grid.tsx` - Grid view
+- [ ] `blog-list.tsx` - List view
+- [ ] `blog-filters.tsx` - Filters and search
+- [ ] `blog-sidebar.tsx` - Sidebar with categories
+- [ ] `comment-section.tsx` - Comments container
+- [ ] `comment-item.tsx` - Single comment
+- [ ] `comment-form.tsx` - Add comment form
+- [ ] `related-posts.tsx` - Related posts widget
+
+### 10.6 Blog Feature Components (`components/features/blog/`)
+
+- [ ] `blog-card-grid.tsx` - Grid card
+- [ ] `blog-card-list.tsx` - List card
+- [ ] `blog-header.tsx` - Post header
+- [ ] `blog-content.tsx` - Post content
+- [ ] `blog-meta.tsx` - Metadata display
+- [ ] `share-buttons.tsx` - Social sharing
+- [ ] `reading-progress.tsx` - Reading progress bar
+
+### 10.7 Blog API Routes
+
+- [ ] Create blogs API (`app/api/blogs/route.ts`)
+- [ ] Create blog detail API (`app/api/blogs/[blogId]/route.ts`)
+- [ ] Create blog comments API (`app/api/blogs/[blogId]/comments/route.ts`)
+- [ ] Create blog categories API (`app/api/blogs/categories/route.ts`)
+- [ ] Create blog tags API (`app/api/blogs/tags/route.ts`)
+
+---
+
+## Phase 11: Family Tree System
+
+### 11.1 Family Tree Database Operations
+
+- [ ] Create family tree queries (`lib/db/queries/family-tree.ts`)
+  - [ ] Get all nodes
+  - [ ] Get node by ID
+  - [ ] Get node with relations
+  - [ ] Search nodes
+  - [ ] Get tree for user
+- [ ] Create family tree mutations (`lib/db/mutations/family-tree.ts`)
+  - [ ] Create node
+  - [ ] Update node
+  - [ ] Delete node
+  - [ ] Add relationship
+  - [ ] Remove relationship
+
+### 11.2 Family Tree Validation
+
+- [ ] Create family tree validation schema (`validations/family-tree.ts`)
+- [ ] Create family tree types (`types/family-tree.ts`)
+
+### 11.3 Family Tree Pages
+
+- [ ] Create family tree page (`app/[locale]/(protected)/family-tree/page.tsx`)
+- [ ] Create family tree loading (`app/[locale]/(protected)/family-tree/loading.tsx`)
+- [ ] Create edit node page (`app/[locale]/(protected)/family-tree/edit/page.tsx`)
+
+### 11.4 Family Tree Server Actions
+
+- [ ] `actions/family-tree/create-node.ts`
+- [ ] `actions/family-tree/update-node.ts`
+- [ ] `actions/family-tree/delete-node.ts`
+- [ ] `actions/family-tree/add-relationship.ts`
+- [ ] `actions/family-tree/remove-relationship.ts`
+
+### 11.5 Family Tree Components (`app/[locale]/(protected)/family-tree/_components/`)
+
+- [ ] `tree-canvas.tsx` - Main canvas
+- [ ] `d3-tree-visualization.tsx` - D3.js tree
+- [ ] `tree-controls.tsx` - View controls
+- [ ] `tree-zoom-controls.tsx` - Zoom in/out/pan
+- [ ] `node-card.tsx` - Node display
+- [ ] `node-detail-modal.tsx` - Node details modal
+- [ ] `edit-node-form.tsx` - Edit node form
+- [ ] `search-tree.tsx` - Search functionality
+- [ ] `tree-legend.tsx` - Tree legend
+- [ ] `tree-list-view.tsx` - Alternative list view
+
+### 11.6 Family Tree Feature Components (`components/features/family-tree/`)
+
+- [ ] `d3-tree-visualization.tsx` - D3 integration
+- [ ] `tree-zoom-controls.tsx` - Zoom controls
+- [ ] `tree-node.tsx` - Node component
+- [ ] `tree-tooltip.tsx` - Tooltip
+- [ ] `relationship-connector.tsx` - Connectors
+
+### 11.7 Family Tree API Routes
+
+- [ ] Create family tree API (`app/api/family-tree/route.ts`)
+- [ ] Create nodes API (`app/api/family-tree/nodes/route.ts`)
+- [ ] Create node detail API (`app/api/family-tree/nodes/[nodeId]/route.ts`)
+- [ ] Create search API (`app/api/family-tree/search/route.ts`)
+
+---
+
+## Phase 12: About Sanstha (Protected)
+
+### 12.1 Executive Members Database Operations
+
+- [ ] Create executive members queries (`lib/db/queries/executive-members.ts`)
+- [ ] Create executive members mutations (`lib/db/mutations/executive-members.ts`)
+
+### 12.2 Executive Members Validation
+
+- [ ] Create validation schema (`validations/executive-member.ts`)
+- [ ] Create types (`types/executive-member.ts`)
+
+### 12.3 About Sanstha Page
+
+- [ ] Create about sanstha page (`app/[locale]/(protected)/about-sanstha/page.tsx`)
+
+### 12.4 About Sanstha Components (`app/[locale]/(protected)/about-sanstha/_components/`)
+
+- [ ] `history-section.tsx` - Sanstha history
+- [ ] `mission-vision.tsx` - Mission & vision
+- [ ] `executive-members.tsx` - Members grid
+- [ ] `member-card.tsx` - Individual member card
+- [ ] `achievements.tsx` - Achievements list
+- [ ] `documents-section.tsx` - Documents download
+
+### 12.5 Executive Members API
+
+- [ ] Create executive members API (`app/api/executive-members/route.ts`)
+- [ ] Create member detail API (`app/api/executive-members/[memberId]/route.ts`)
+
+---
+
+## Phase 13: Reactions & Notifications System
 
 ### 13.1 Reactions System
 
-- [ ] Create Reaction model API routes
-- [ ] Implement reaction types (LIKE, LOVE, HELPFUL, INSIGHTFUL, CELEBRATE)
-- [ ] Build reaction picker UI
-- [ ] Implement optimistic updates
-- [ ] Add reaction counts display
-- [ ] Create "who reacted" list
+- [ ] Create reactions queries (`lib/db/queries/reactions.ts`)
+- [ ] Create reactions mutations (`lib/db/mutations/reactions.ts`)
+- [ ] Create reactions validation (`validations/reaction.ts`)
+- [ ] Create reactions types (`types/reaction.ts`)
+- [ ] Create reactions server actions
+  - [ ] `actions/reactions/add-reaction.ts`
+  - [ ] `actions/reactions/remove-reaction.ts`
+- [ ] Create reactions API (`app/api/reactions/route.ts`)
 
-### 13.2 Reporting System
+### 13.2 Notifications System
 
-- [ ] Create Report model API routes
-- [ ] Create report modal
-- [ ] Implement ReportReason selection
-- [ ] Build admin report review panel
-- [ ] Add report resolution workflow (ReportStatus)
-
----
-
-## 14. Search & Analytics
-
-### 14.1 Search Functionality
-
-- [ ] Create SearchIndex model
-- [ ] Implement global search bar
-- [ ] Build search results page
-- [ ] Add search filters by content type
-- [ ] Implement search suggestions (optional)
-
-### 14.2 Analytics
-
-- [ ] Set up PageView tracking
-- [ ] Create SiteMetrics daily aggregation job
-- [ ] Build analytics dashboard for admin
-- [ ] Integrate Vercel Analytics (optional)
+- [ ] Create notifications queries (`lib/db/queries/notifications.ts`)
+- [ ] Create notifications mutations (`lib/db/mutations/notifications.ts`)
+- [ ] Create notifications validation (`validations/notification.ts`)
+- [ ] Create notifications types (`types/notification.ts`)
+- [ ] Create notifications server actions
+  - [ ] `actions/notifications/mark-as-read.ts`
+  - [ ] `actions/notifications/mark-all-as-read.ts`
+- [ ] Create notifications components (`components/features/notifications/`)
+  - [ ] `notification-bell.tsx`
+  - [ ] `notification-list.tsx`
+  - [ ] `notification-item.tsx`
+- [ ] Create notifications API (`app/api/notifications/route.ts`)
+- [ ] Create notifications detail API (`app/api/notifications/[notificationId]/route.ts`)
 
 ---
 
-## 15. Security & Performance
+## Phase 14: Reports & Moderation System
 
-### 15.1 Security Implementation
+### 14.1 Reports Database
 
-- [ ] Configure bcrypt password hashing (salt rounds: 12)
-- [ ] Implement rate limiting on sensitive routes
-- [ ] Set up CSRF protection (built-in Next.js)
-- [ ] Add input validation/sanitization (Zod schemas)
-- [ ] Implement XSS prevention (DOMPurify for rich content)
-- [ ] Configure Content Security Policy (CSP) headers
-- [ ] Set up environment variable validation
+- [ ] Create reports queries (`lib/db/queries/reports.ts`)
+- [ ] Create reports mutations (`lib/db/mutations/reports.ts`)
+- [ ] Create reports validation (`validations/report.ts`)
+- [ ] Create reports types (`types/report.ts`)
 
-### 15.2 File Upload Security
+### 14.2 Reports Server Actions
 
-- [ ] Create Upload model API routes
-- [ ] Implement file type validation
-- [ ] Add file size limits
-- [ ] Configure malware scanning (optional)
-- [ ] Set up AWS S3/Cloudinary integration
+- [ ] `actions/reports/create-report.ts`
+- [ ] `actions/reports/resolve-report.ts`
 
-### 15.3 Performance Optimization
+### 14.3 Reports API
 
-- [ ] Configure Next.js Image optimization
-- [ ] Implement lazy loading for images
-- [ ] Set up code splitting with Turbopack
-- [ ] Configure "use cache" directives
-- [ ] Implement ISR (Incremental Static Regeneration)
-- [ ] Optimize database queries with indexes
-
-### 15.4 Privacy Compliance
-
-- [ ] Create privacy policy page
-- [ ] Build terms of service page
-- [ ] Implement cookie consent (if using analytics)
-- [ ] Add user data export functionality
-- [ ] Create user data deletion workflow
+- [ ] Create reports API (`app/api/reports/route.ts`)
+- [ ] Create report detail API (`app/api/reports/[reportId]/route.ts`)
 
 ---
 
-## 16. Testing & Quality Assurance
+## Phase 15: Admin Dashboard
 
-### 16.1 Unit Testing
+### 15.1 Admin Layout
 
-- [ ] Set up testing framework (Jest/Vitest)
-- [ ] Write tests for utility functions
-- [ ] Test authentication flows
-- [ ] Test API routes
+- [ ] Create admin layout (`app/[locale]/(admin)/layout.tsx`)
+  - [ ] Admin role check
+  - [ ] Admin sidebar
+  - [ ] Admin header
 
-### 16.2 Integration Testing
+### 15.2 Admin Dashboard Page
 
-- [ ] Test database operations
-- [ ] Test form submissions
-- [ ] Test file uploads
+- [ ] Create admin dashboard (`app/[locale]/(admin)/admin/page.tsx`)
+- [ ] Create admin loading (`app/[locale]/(admin)/admin/loading.tsx`)
+- [ ] Create admin components (`app/[locale]/(admin)/admin/_components/`)
+  - [ ] `admin-sidebar.tsx`
+  - [ ] `admin-header.tsx`
+  - [ ] `stats-widget.tsx`
+  - [ ] `quick-actions.tsx`
+  - [ ] `recent-activities.tsx`
 
-### 16.3 E2E Testing
+### 15.3 Admin User Management
 
-- [ ] Set up Playwright/Cypress
-- [ ] Test user registration flow
-- [ ] Test login/logout flow
-- [ ] Test forum CRUD operations
-- [ ] Test blog CRUD operations
-- [ ] Test admin dashboard
+- [ ] Create users page (`app/[locale]/(admin)/admin/users/page.tsx`)
+- [ ] Create user detail page (`app/[locale]/(admin)/admin/users/[userId]/page.tsx`)
+- [ ] Create user components (`app/[locale]/(admin)/admin/users/_components/`)
+  - [ ] `user-table.tsx`
+  - [ ] `user-filters.tsx`
+  - [ ] `user-actions.tsx`
+  - [ ] `bulk-actions.tsx`
+- [ ] Create user management server actions
+  - [ ] `actions/admin/approve-user.ts`
+  - [ ] `actions/admin/suspend-user.ts`
+  - [ ] `actions/admin/delete-content.ts`
 
-### 16.4 Performance Testing
+### 15.4 Admin Forum Management
 
-- [ ] Run Lighthouse audits
-- [ ] Test page load times
-- [ ] Verify cache effectiveness
+- [ ] Create forum admin page (`app/[locale]/(admin)/admin/forum/page.tsx`)
+- [ ] Create categories management (`app/[locale]/(admin)/admin/forum/categories/page.tsx`)
+- [ ] Create reported content page (`app/[locale]/(admin)/admin/forum/reported/page.tsx`)
+- [ ] Create forum admin components
+  - [ ] `moderation-dashboard.tsx`
+  - [ ] `category-manager.tsx`
+  - [ ] `report-queue.tsx`
+  - [ ] `report-card.tsx`
 
----
+### 15.5 Admin Blog Management
 
-## 17. Deployment & Documentation
+- [ ] Create blogs admin page (`app/[locale]/(admin)/admin/blogs/page.tsx`)
+- [ ] Create new blog page (`app/[locale]/(admin)/admin/blogs/new/page.tsx`)
+- [ ] Create edit blog page (`app/[locale]/(admin)/admin/blogs/edit/[blogId]/page.tsx`)
+- [ ] Create categories page (`app/[locale]/(admin)/admin/blogs/categories/page.tsx`)
+- [ ] Create blog admin components
+  - [ ] `blog-editor.tsx`
+  - [ ] `blog-list-admin.tsx`
+  - [ ] `category-manager.tsx`
+  - [ ] `media-library.tsx`
+- [ ] Create blog server actions
+  - [ ] `actions/blogs/create-blog.ts`
+  - [ ] `actions/blogs/update-blog.ts`
+  - [ ] `actions/blogs/delete-blog.ts`
+  - [ ] `actions/blogs/publish-blog.ts`
 
-### 17.1 Deployment Preparation
+### 15.6 Admin News Management
 
-- [ ] Configure production environment variables
-- [ ] Set up PostgreSQL production database
-- [ ] Configure file storage (S3/Cloudinary)
-- [ ] Set up email service (Resend/SendGrid)
+- [ ] Create news admin page (`app/[locale]/(admin)/admin/news/page.tsx`)
+- [ ] Create new news page (`app/[locale]/(admin)/admin/news/new/page.tsx`)
+- [ ] Create edit news page (`app/[locale]/(admin)/admin/news/edit/[newsId]/page.tsx`)
+- [ ] Create news admin components
+  - [ ] `news-editor.tsx`
+  - [ ] `news-list-admin.tsx`
+  - [ ] `news-scheduler.tsx`
+- [ ] Create news server actions
+  - [ ] `actions/news/create-news.ts`
+  - [ ] `actions/news/update-news.ts`
+  - [ ] `actions/news/delete-news.ts`
+  - [ ] `actions/news/feature-news.ts`
 
-### 17.2 Vercel Deployment
+### 15.7 Admin Executive Members Management
 
-- [ ] Connect GitHub repository
-- [ ] Configure build settings
-- [ ] Set up environment variables in Vercel
-- [ ] Deploy to staging
-- [ ] Test staging deployment
-- [ ] Deploy to production
+- [ ] Create executive members admin page (`app/[locale]/(admin)/admin/executive-members/page.tsx`)
+- [ ] Create new member page (`app/[locale]/(admin)/admin/executive-members/new/page.tsx`)
+- [ ] Create edit member page (`app/[locale]/(admin)/admin/executive-members/edit/[memberId]/page.tsx`)
+- [ ] Create member admin components
+  - [ ] `member-form.tsx`
+  - [ ] `member-list-admin.tsx`
+  - [ ] `tenure-manager.tsx`
 
-### 17.3 Documentation
+### 15.8 Admin Contact Inquiries
 
-- [ ] Create API documentation
-- [ ] Write user guide for admins
-- [ ] Document database schema
-- [ ] Create deployment guide
+- [ ] Create contact admin page (`app/[locale]/(admin)/admin/contact/page.tsx`)
+- [ ] Create inquiry detail page (`app/[locale]/(admin)/admin/contact/[inquiryId]/page.tsx`)
+- [ ] Create inquiry components
+  - [ ] `inquiry-list.tsx`
+  - [ ] `inquiry-detail.tsx`
+  - [ ] `reply-form.tsx`
 
-### 17.4 Post-Launch
+### 15.9 Admin Family Tree Management
 
-- [ ] Monitor error tracking
-- [ ] Set up uptime monitoring
-- [ ] Create backup strategy
-- [ ] Implement CacheEntry for app-level caching
-- [ ] Set up DataBackup for critical tables
+- [ ] Create family tree admin page (`app/[locale]/(admin)/admin/family-tree/page.tsx`)
+- [ ] Create import page (`app/[locale]/(admin)/admin/family-tree/import/page.tsx`)
+- [ ] Create export page (`app/[locale]/(admin)/admin/family-tree/export/page.tsx`)
+- [ ] Create admin components
+  - [ ] `admin-tree-editor.tsx`
+  - [ ] `bulk-import.tsx`
+  - [ ] `merge-nodes.tsx`
+  - [ ] `tree-analytics.tsx`
+- [ ] Create import/export APIs
+  - [ ] `app/api/family-tree/import/route.ts`
+  - [ ] `app/api/family-tree/export/route.ts`
 
----
+### 15.10 Admin Settings
 
-# PHASE 2: ADVANCED FEATURES
-
----
-
-## 18. Internationalization (i18n)
-
-### 18.1 Translation System
-
-- [ ] Create Translation model API routes
-- [ ] Set up locale support (en, ne, hi)
-- [ ] Create namespace structure (common, auth, forum, blog, etc.)
-- [ ] Implement translation loading mechanism
-- [ ] Create admin translation management UI
-- [ ] Add language switcher component
-
-### 18.2 Content Localization
-
-- [ ] Translate static UI strings
-- [ ] Support bilingual content (English + Nepali/Hindi)
-- [ ] Implement RTL support (if needed)
-- [ ] Configure variable fonts for multi-language support
-
----
-
-## 19. Event Management System
-
-### 19.1 Event Categories
-
-- [ ] Create EventCategory model API routes
-- [ ] Seed event categories (Meeting, Celebration, Cultural, Religious, etc.)
-- [ ] Build category management (admin)
-
-### 19.2 Event Listing
-
-- [ ] Create events listing page UI
-- [ ] Implement calendar view
-- [ ] Add list view with filters
-- [ ] Build event cards with date, location, type
-- [ ] Implement pagination
-- [ ] Add featured events section
-
-### 19.3 Event Detail Page
-
-- [ ] Create single event view
-- [ ] Display event details (date, time, location, venue)
-- [ ] Show organizer information
-- [ ] Add Google Maps integration
-- [ ] Display attendee count
-- [ ] Show event attachments (EventAttachment)
-
-### 19.4 Event Creation (Admin/Organizer)
-
-- [ ] Create event form UI
-- [ ] Implement date/time picker with timezone
-- [ ] Add location and venue details
-- [ ] Upload featured image
-- [ ] Set capacity and RSVP requirements
-- [ ] Add SEO meta tags
-- [ ] Attach files/documents
-
-### 19.5 RSVP System
-
-- [ ] Create EventRSVP API routes
-- [ ] Implement RSVP UI (Attending, Not Attending, Maybe)
-- [ ] Add guest count feature
-- [ ] Allow notes with RSVP
-- [ ] Display RSVP status per event
-- [ ] Show attendee list
-
-### 19.6 Event Reminders
-
-- [ ] Create EventReminder model API routes
-- [ ] Implement reminder scheduling
-- [ ] Send email reminders
-- [ ] Send push notifications for reminders
-- [ ] Track sent status (isSent, sentAt)
-
-### 19.7 Event Notifications
-
-- [ ] Add EVENT_INVITE notification type
-- [ ] Notify users of new events
-- [ ] Remind users before events
+- [ ] Create settings page (`app/[locale]/(admin)/admin/settings/page.tsx`)
+- [ ] Create general settings (`app/[locale]/(admin)/admin/settings/general/page.tsx`)
+- [ ] Create SEO settings (`app/[locale]/(admin)/admin/settings/seo/page.tsx`)
+- [ ] Create email settings (`app/[locale]/(admin)/admin/settings/email/page.tsx`)
+- [ ] Create settings components
+  - [ ] `settings-form.tsx`
+  - [ ] `seo-settings.tsx`
+  - [ ] `email-templates.tsx`
+- [ ] Create settings API (`app/api/settings/route.ts`)
+- [ ] Create settings actions (`actions/admin/update-settings.ts`)
 
 ---
 
-## 20. Photo Gallery System
+## Phase 16: File Storage & Upload
 
-### 20.1 Photo Albums
+### 16.1 Storage Configuration
 
-- [ ] Create PhotoAlbum model API routes
-- [ ] Implement album creation UI
-- [ ] Add album visibility controls (PUBLIC, MEMBERS_ONLY, PRIVATE)
-- [ ] Build album listing page
-- [ ] Implement cover photo selection
+- [ ] Set up AWS S3 or Cloudinary (`lib/storage/`)
+  - [ ] `index.ts` - Storage exports
+  - [ ] `s3.ts` - AWS S3 client
+  - [ ] `cloudinary.ts` - Cloudinary client
+  - [ ] `upload.ts` - Upload helpers
+  - [ ] `delete.ts` - Delete helpers
+  - [ ] `optimize.ts` - Image optimization
 
-### 20.2 Photo Upload & Management
+### 16.2 Upload API Routes
 
-- [ ] Create Photo model API routes
-- [ ] Build bulk photo upload UI
-- [ ] Implement automatic thumbnail generation
-- [ ] Add photo metadata (title, description, location, takenAt)
-- [ ] Support image optimization (Next.js Image)
-- [ ] Track file dimensions (width, height, fileSize)
+- [ ] Create image upload API (`app/api/upload/image/route.ts`)
+- [ ] Create document upload API (`app/api/upload/document/route.ts`)
+- [ ] Create avatar upload API (`app/api/upload/avatar/route.ts`)
 
-### 20.3 Photo Tagging
+### 16.3 Upload Hooks
 
-- [ ] Create PhotoTag model API routes
-- [ ] Implement person tagging on photos
-- [ ] Add tag coordinates (x, y percentage)
-- [ ] Link tags to user profiles
-
-### 20.4 Photo Interactions
-
-- [ ] Create PhotoComment model API routes
-- [ ] Build comments section for photos
-- [ ] Create PhotoReaction model API routes
-- [ ] Implement like/love reactions
-- [ ] Add reaction counts display
-
-### 20.5 Photo Gallery UI
-
-- [ ] Create lightbox/modal for photo viewing
-- [ ] Implement swipe navigation
-- [ ] Add zoom functionality
-- [ ] Build slideshow feature
-- [ ] Create masonry grid layout
+- [ ] Create upload hook (`hooks/use-upload.ts`)
 
 ---
 
-## 21. Document Management System
+## Phase 17: Search System
 
-### 21.1 Document Categories
+### 17.1 Search Implementation
 
-- [ ] Create DocumentCategory model API routes
-- [ ] Seed categories (Constitution, Minutes, Reports, Financial)
-- [ ] Build category management (admin)
+- [ ] Create search utilities (`lib/search/`)
+  - [ ] `index.ts` - Search exports
+  - [ ] `full-text-search.ts` - PostgreSQL FTS
+  - [ ] `indexing.ts` - Search indexing
+  - [ ] `filters.ts` - Search filters
 
-### 21.2 Document Upload
+### 17.2 Global Search API
 
-- [ ] Create Document model API routes
-- [ ] Build document upload UI
-- [ ] Implement file type validation (PDF, DOC, DOCX, XLS, etc.)
-- [ ] Add version control (version, parentVersionId)
-- [ ] Set document status (DRAFT, PUBLISHED, ARCHIVED)
-- [ ] Configure access levels (PUBLIC, MEMBERS_ONLY, ADMIN_ONLY, CUSTOM)
-
-### 21.3 Document Permissions
-
-- [ ] Create DocumentPermission model API routes
-- [ ] Implement custom permission UI
-- [ ] Allow view/download/edit permissions per user
-- [ ] Handle access level checks
-
-### 21.4 Document Viewing & Download
-
-- [ ] Create document listing page
-- [ ] Implement PDF preview (optional)
-- [ ] Track downloads (DocumentDownload)
-- [ ] Add download count display
-- [ ] Log download with IP address
-
-### 21.5 Version History
-
-- [ ] Display document versions
-- [ ] Allow version comparison (optional)
-- [ ] Implement version rollback (admin)
+- [ ] Create search API (`app/api/search/route.ts`)
+  - [ ] Search users
+  - [ ] Search forum threads
+  - [ ] Search blog posts
+  - [ ] Search news
 
 ---
 
-## 22. Donation System
+## Phase 18: Custom React Hooks
 
-### 22.1 Donation Campaigns
+### 18.1 Core Hooks (`hooks/`)
 
-- [ ] Create DonationCampaign model API routes
-- [ ] Build campaign creation UI
-- [ ] Set goal amount and currency
-- [ ] Add start/end dates
-- [ ] Track current amount raised
-- [ ] Display progress bar
-
-### 22.2 Donation Processing
-
-- [ ] Create Donation model API routes
-- [ ] Integrate payment gateway (Razorpay/Stripe)
-- [ ] Support multiple payment methods
-- [ ] Handle anonymous donations
-- [ ] Track donation status (PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED)
-- [ ] Store transaction details (transactionId, paymentGatewayResponse)
-
-### 22.3 Donation Receipt
-
-- [ ] Generate receipt numbers
-- [ ] Create downloadable receipt PDF
-- [ ] Mark tax-deductible donations
-- [ ] Send confirmation email
-
-### 22.4 Donation History
-
-- [ ] Create user donation history page
-- [ ] Display donation amounts and dates
-- [ ] Show associated campaigns
-- [ ] Allow donor messages
-
-### 22.5 Donation Admin Management
-
-- [ ] Create donation listing page
-- [ ] Filter by status, campaign, date
-- [ ] Export donation reports
-- [ ] Process refunds
-- [ ] Add DONATION_RECEIVED notification
+- [ ] `use-auth.ts` - Auth state hook
+- [ ] `use-user.ts` - User data hook
+- [ ] `use-session.ts` - Session hook
+- [ ] `use-toast.ts` - Toast hook
+- [ ] `use-modal.ts` - Modal hook
+- [ ] `use-debounce.ts` - Debounce hook
+- [ ] `use-throttle.ts` - Throttle hook
+- [ ] `use-local-storage.ts` - Local storage hook
+- [ ] `use-media-query.ts` - Media query hook
+- [ ] `use-intersection-observer.ts` - Intersection observer
+- [ ] `use-click-outside.ts` - Click outside hook
+- [ ] `use-copy-to-clipboard.ts` - Copy hook
+- [ ] `use-infinite-scroll.ts` - Infinite scroll
+- [ ] `use-notifications.ts` - Notifications hook
+- [ ] `use-permissions.ts` - Permissions hook
 
 ---
 
-## 23. Member Directory & Profiles
+## Phase 19: Middleware & Security
 
-### 23.1 Member Profiles
+### 19.1 Middleware Setup
 
-- [ ] Create MemberProfile model API routes
-- [ ] Build extended profile form
-- [ ] Add professional info (profession, company, skills)
-- [ ] Set contact preferences (showEmail, showPhone, showAddress)
-- [ ] Configure membership type (REGULAR, HONORARY, LIFE_MEMBER, PATRON)
-- [ ] Add social links (LinkedIn, Twitter, Facebook, Website)
+- [ ] Create rate limiting middleware (`middleware/rate-limit.ts`)
+- [ ] Create CORS middleware (`middleware/cors.ts`)
+- [ ] Create error handler middleware (`middleware/error-handler.ts`)
+- [ ] Create logger middleware (`middleware/logger.ts`)
 
-### 23.2 Member Directory
+### 19.2 Security Implementation
 
-- [ ] Create directory listing page
-- [ ] Implement search by name, skills, profession
-- [ ] Add filter by membership type
-- [ ] Display member cards with key info
-- [ ] Respect privacy preferences
-
-### 23.3 Badge System
-
-- [ ] Create Badge model API routes
-- [ ] Define badge types and criteria
-- [ ] Build badge management (admin)
-- [ ] Create UserBadge assignment
-- [ ] Display badges on profiles
-- [ ] Add BADGE_EARNED notification
+- [ ] Implement CSRF protection
+- [ ] Set up Content Security Policy headers
+- [ ] Configure secure cookies
+- [ ] Implement input sanitization
+- [ ] Set up rate limiting on sensitive routes
 
 ---
 
-## 24. Direct Messaging System
+## Phase 20: Testing Setup
 
-### 24.1 Conversations
+### 20.1 Testing Configuration
 
-- [ ] Create Conversation model API routes
-- [ ] Implement one-on-one messaging
-- [ ] Add group conversation support
-- [ ] Set group name and image
-- [ ] Track participants (ConversationParticipant)
+- [ ] Configure Vitest (`vitest.config.ts`)
+- [ ] Configure Playwright (`playwright.config.ts`)
+- [ ] Create test setup (`tests/setup.ts`)
+- [ ] Create test helpers (`tests/helpers.ts`)
+- [ ] Create test fixtures (`tests/fixtures/`)
 
-### 24.2 Message Features
+### 20.2 Unit Tests (`tests/unit/`)
 
-- [ ] Create Message model API routes
-- [ ] Build message compose UI
-- [ ] Implement real-time messaging (WebSocket/SSE)
-- [ ] Add attachments support
-- [ ] Implement reply to message (replyToId)
-- [ ] Track message status (SENT, DELIVERED, READ, DELETED)
-- [ ] Support soft delete (deletedAt)
+- [ ] Utility function tests
+- [ ] Validation schema tests
+- [ ] Auth function tests
+- [ ] Component tests
 
-### 24.3 Read Receipts
+### 20.3 Integration Tests (`tests/integration/`)
 
-- [ ] Create MessageReadReceipt model API routes
-- [ ] Track read status per user
-- [ ] Display read indicators
-- [ ] Implement "last read at" tracking
+- [ ] API route tests
+- [ ] Database query tests
+- [ ] Server action tests
 
-### 24.4 Conversation Management
+### 20.4 E2E Tests (`tests/e2e/`)
 
-- [ ] Create conversation list UI
-- [ ] Show unread counts
-- [ ] Implement mute conversation
-- [ ] Allow leaving group conversations
-- [ ] Add NEW_MESSAGE notification
-
-### 24.5 Search & History
-
-- [ ] Search within conversations
-- [ ] Load message history with pagination
-- [ ] Implement infinite scroll
+- [ ] Auth flow tests
+- [ ] Forum flow tests
+- [ ] Blog flow tests
+- [ ] Family tree tests
 
 ---
 
-## 25. Push Notifications
+## Phase 21: Phase 2 Features (Optional/Future)
 
-### 25.1 Push Subscription
+### 21.1 Events System
 
-- [ ] Create PushSubscription model API routes
-- [ ] Implement Web Push API
-- [ ] Store subscription endpoint and keys
-- [ ] Support device types (WEB, IOS, ANDROID)
-- [ ] Track device names
+- [ ] Add Phase 2 database models (Event, EventCategory, EventRSVP, etc.)
+- [ ] Create events pages and components
+- [ ] Implement RSVP functionality
+- [ ] Create events calendar view
 
-### 25.2 Push Notification Delivery
+### 21.2 Photo Gallery
 
-- [ ] Create PushNotification model API routes
-- [ ] Implement notification sending service
-- [ ] Track sent status and time
-- [ ] Handle failed deliveries
-- [ ] Add badge and icon support
+- [ ] Add gallery database models (PhotoAlbum, Photo, PhotoTag, etc.)
+- [ ] Create gallery pages and components
+- [ ] Implement photo upload with tagging
+- [ ] Create lightbox viewer
 
-### 25.3 Notification Preferences
+### 21.3 Document Management
 
-- [ ] Allow users to manage subscriptions
-- [ ] Set notification categories
-- [ ] Implement quiet hours (optional)
-- [ ] Support multiple devices per user
+- [ ] Add document database models
+- [ ] Create document pages and components
+- [ ] Implement version control
+- [ ] Create PDF viewer
 
----
+### 21.4 Donation System
 
-## 26. Video Content System
+- [ ] Add donation database models
+- [ ] Integrate payment gateways (Razorpay/Stripe)
+- [ ] Create donation pages
+- [ ] Implement receipt generation
 
-### 26.1 Video Categories
+### 21.5 Messaging System
 
-- [ ] Create VideoCategory model API routes
-- [ ] Seed video categories
-- [ ] Build category management (admin)
+- [ ] Add messaging database models
+- [ ] Create real-time messaging
+- [ ] Implement conversation UI
+- [ ] Add file attachments
 
-### 26.2 Video Upload & Processing
+### 21.6 Video System
 
-- [ ] Create Video model API routes
-- [ ] Implement video upload UI
-- [ ] Track processing status (PROCESSING, READY, FAILED)
-- [ ] Generate thumbnails
-- [ ] Extract duration
-- [ ] Configure visibility (PUBLIC, MEMBERS_ONLY, PRIVATE)
+- [ ] Add video database models
+- [ ] Implement video upload and processing
+- [ ] Create video player
+- [ ] Add live streaming support
 
-### 26.3 Video Player
+### 21.7 Gamification System
 
-- [ ] Create custom video player component
-- [ ] Implement playback controls
-- [ ] Track view counts
-- [ ] Support quality selection (optional)
+- [ ] Add gamification database models
+- [ ] Implement points system
+- [ ] Create badges and achievements
+- [ ] Build leaderboard
 
-### 26.4 Video Interactions
+### 21.8 Member Directory
 
-- [ ] Create VideoComment model API routes
-- [ ] Implement timestamped comments
-- [ ] Create VideoReaction model API routes
-- [ ] Add like/love reactions
-- [ ] Display reaction counts
-
-### 26.5 Live Streaming
-
-- [ ] Create LiveStream model API routes
-- [ ] Implement stream key generation
-- [ ] Track live status (isLive, startedAt, endedAt)
-- [ ] Display viewer counts (peakViewers, totalViews)
-- [ ] Integrate streaming service (optional)
+- [ ] Add member profile database models
+- [ ] Create member directory pages
+- [ ] Implement member search
+- [ ] Create member profiles
 
 ---
 
-## 27. Gamification System
+## Phase 22: Performance & Optimization
 
-### 27.1 Points System
+### 22.1 Caching Strategy
 
-- [ ] Create UserPoints model API routes
-- [ ] Define point values for actions
-- [ ] Track points by category (forum, blog, helpful, event)
-- [ ] Calculate user levels
-- [ ] Create PointHistory for tracking
+- [ ] Implement Next.js 16 "use cache" directive
+- [ ] Set up revalidation with `revalidateTag()`
+- [ ] Configure Redis caching (optional)
+- [ ] Implement cache helpers (`lib/cache/`)
 
-### 27.2 Achievements
+### 22.2 Performance Optimization
 
-- [ ] Create Achievement model API routes
-- [ ] Define achievement criteria (JSON)
-- [ ] Create UserAchievement tracking
-- [ ] Display earned achievements on profiles
-- [ ] Add ACHIEVEMENT_UNLOCKED notification
+- [ ] Implement image optimization with Next.js Image
+- [ ] Add lazy loading for images
+- [ ] Implement code splitting
+- [ ] Add loading skeletons
+- [ ] Optimize database queries
 
-### 27.3 Leaderboards
+### 22.3 SEO Optimization
 
-- [ ] Create Leaderboard model API routes
-- [ ] Implement ranking algorithm
-- [ ] Support multiple categories (overall, forum, blog, helpful, events)
-- [ ] Create period-based leaderboards (weekly, monthly, yearly, all-time)
-- [ ] Build leaderboard UI
-
-### 27.4 Gamification UI
-
-- [ ] Create points display on profile
-- [ ] Show level progress bar
-- [ ] Display recent achievements
-- [ ] Build achievements showcase page
-- [ ] Create leaderboard page
+- [ ] Configure SEO defaults (`config/seo.ts`)
+- [ ] Add meta tags to all pages
+- [ ] Generate sitemap
+- [ ] Configure robots.txt
+- [ ] Add structured data (JSON-LD)
 
 ---
 
-## 28. Family Tree AI Suggestions
+## Phase 23: Internationalization (i18n)
 
-### 28.1 AI Suggestion System
+### 23.1 i18n Setup
 
-- [ ] Create FamilyTreeSuggestion model API routes
-- [ ] Implement suggestion generation algorithm
-- [ ] Calculate confidence scores
-- [ ] Store suggestion reasons
-
-### 28.2 Suggestion Review
-
-- [ ] Create suggestion review UI
-- [ ] Allow accept/reject suggestions
-- [ ] Track review status (pending, accepted, rejected)
-- [ ] Log reviewer and review time
-
-### 28.3 ML Integration (Optional)
-
-- [ ] Integrate ML model for relationship predictions
-- [ ] Improve suggestions based on feedback
-- [ ] Detect potential duplicate nodes
+- [ ] Configure i18n routing
+- [ ] Create translation files (`public/locales/`)
+  - [ ] English (`en/`)
+  - [ ] Nepali (`ne/`)
+  - [ ] Hindi (`hi/`)
+- [ ] Create i18n provider (`components/providers/i18n-provider.tsx`)
+- [ ] Create language switcher
+- [ ] Create i18n API (`app/api/i18n/[locale]/route.ts`)
 
 ---
 
-## 29. Audit & Backup Systems
+## Phase 24: Analytics & Monitoring
 
-### 29.1 Audit Logging
+### 24.1 Analytics Setup
 
-- [ ] Create AuditLog model API routes
-- [ ] Log all critical actions
-- [ ] Store action metadata
-- [ ] Build audit log viewer (admin)
-- [ ] Implement filtering and search
+- [ ] Integrate Vercel Analytics
+- [ ] Create analytics utilities (`lib/analytics/`)
+- [ ] Implement page view tracking
+- [ ] Create custom event tracking
 
-### 29.2 Data Backup
+### 24.2 Admin Analytics
 
-- [ ] Create DataBackup model API routes
-- [ ] Implement backup scheduling
-- [ ] Store backup data as JSON
-- [ ] Track backup reasons and creators
-- [ ] Create restore functionality (admin)
-
----
-
-## 30. Extended Notification Types
-
-### 30.1 Additional Notifications
-
-- [ ] Implement NEW_MESSAGE notification
-- [ ] Add EVENT_INVITE notification
-- [ ] Create DONATION_RECEIVED notification
-- [ ] Add BADGE_EARNED notification
-- [ ] Implement ACHIEVEMENT_UNLOCKED notification
-
-### 30.2 Notification Preferences
-
-- [ ] Update UserPreferences with new notification types
-- [ ] Allow granular notification control
-- [ ] Implement email digest for grouped notifications
+- [ ] Create analytics dashboard (`app/[locale]/(admin)/admin/analytics/page.tsx`)
+- [ ] Create analytics components
+  - [ ] `analytics-overview.tsx`
+  - [ ] Chart components (`line-chart.tsx`, `bar-chart.tsx`, etc.)
+  - [ ] `user-metrics.tsx`
+  - [ ] `content-metrics.tsx`
 
 ---
 
-# PHASE 3: FUTURE ENHANCEMENTS
+## Phase 25: Deployment & Documentation
+
+### 25.1 Deployment Setup
+
+- [ ] Configure Vercel deployment
+- [ ] Set up environment variables on Vercel
+- [ ] Configure database connection (production)
+- [ ] Set up domain and SSL
+
+### 25.2 CI/CD
+
+- [ ] Create GitHub Actions workflow (`.github/workflows/`)
+  - [ ] CI workflow
+  - [ ] Deploy workflow
+  - [ ] Test workflow
+
+### 25.3 Documentation
+
+- [ ] Update README.md
+- [ ] Create API documentation (`docs/API.md`)
+- [ ] Create deployment guide (`docs/DEPLOYMENT.md`)
+- [ ] Create contributing guide (`docs/CONTRIBUTING.md`)
 
 ---
 
-## Future Features (Post Phase 2)
+## Quick Reference
 
-- [ ] Two-Factor Authentication (2FA)
-- [ ] Advanced global search with elasticsearch
-- [ ] AI-powered content recommendations
-- [ ] Mobile app (React Native)
-- [ ] Offline support (PWA)
-- [ ] Advanced analytics dashboard
-- [ ] Newsletter automation
-- [ ] Event calendar with reminders sync (Google Calendar, iCal)
-- [ ] Community polls and surveys
-- [ ] Job board for community members
-- [ ] Marketplace for local products
-- [ ] Emergency notification system
+### Tech Stack
 
----
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **UI**: React 19.2, Tailwind CSS v4
+- **Database**: PostgreSQL + Prisma 6
+- **Auth**: NextAuth.js v5
+- **Package Manager**: Bun
+- **Visualization**: D3.js v7
+- **Forms**: React Hook Form + Zod
+- **Email**: Resend/SendGrid
+- **Storage**: AWS S3 / Cloudinary
+- **Testing**: Vitest + Playwright
 
-> **Note**: Check off items `[x]` as they are completed. Update status to `[/]` for in-progress items.  
-> This task list follows the project structure defined in `docs/prd.md` and `docs/database.md`.
+### Key Directories
+
+- `app/` - Next.js pages and API routes
+- `components/` - React components
+- `lib/` - Core library functions
+- `actions/` - Server Actions
+- `hooks/` - Custom React hooks
+- `validations/` - Zod schemas
+- `types/` - TypeScript types
+- `prisma/` - Database schema
+- `tests/` - Test files
+
+### Commands
+
+```bash
+# Development
+bun run dev
+
+# Database
+bunx prisma db push
+bunx prisma migrate dev
+bunx prisma generate
+bunx prisma db seed
+
+# Testing
+bun run test
+bun run test:e2e
+
+# Build
+bun run build
+bun run start
+
+# Linting
+bun run lint
+bun run format
+```

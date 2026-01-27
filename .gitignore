@@ -14,6 +14,7 @@
 /coverage
 
 # next.js
+/.kilocode/
 /.next/
 /out/
 
