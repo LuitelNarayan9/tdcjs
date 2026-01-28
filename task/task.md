@@ -21,145 +21,159 @@ A comprehensive full-stack web application for a village community organization 
 
 ### 1.2 Database Setup
 
-- [ ] Set up PostgreSQL database connection
-- [ ] Configure Prisma ORM (v6+)
-  - [ ] Create Prisma client singleton (`lib/db/index.ts`)
-  - [ ] Add database connection pooling
-- [ ] Create Prisma schema from `database.md`
-  - [ ] User Management models (User, Account, Session, VerificationToken, UserPreferences)
-  - [ ] Family Tree models (FamilyNode)
-  - [ ] Forum models (ForumCategory, ForumThread, ForumPost)
-  - [ ] Blog models (BlogCategory, BlogPost, BlogTag, BlogComment)
-  - [ ] News models (NewsCategory, News)
-  - [ ] Executive Members model
-  - [ ] Contact Inquiries model
-  - [ ] Reactions model
-  - [ ] Notifications model
-  - [ ] Reports model
-  - [ ] Admin Actions model
-  - [ ] Activity Log model
-  - [ ] Analytics models (PageView, SiteMetrics)
-  - [ ] Search Index model
-  - [ ] Site Settings model
-  - [ ] Email Template model
-  - [ ] Upload model
-  - [ ] Cache Entry model
-  - [ ] Data Backup model
-- [ ] Run initial migration (`bunx prisma migrate dev`)
-- [ ] Create database seed script (`prisma/seed.ts`)
-  - [ ] Seed admin user
-  - [ ] Seed forum categories
-  - [ ] Seed blog categories
-  - [ ] Seed news categories
-  - [ ] Seed sample executive members
+- [x] Set up PostgreSQL database connection
+- [x] Configure Prisma ORM (v7.3)
+  - [x] Create Prisma client singleton (`lib/db/index.ts`)
+  - [x] Add database connection pooling
+- [x] Create Prisma schema from `database.md`
+  - [x] User Management models (User, Account, Session, VerificationToken, UserPreferences)
+  - [x] Family Tree models (FamilyNode)
+  - [x] Forum models (ForumCategory, ForumThread, ForumPost)
+  - [x] Blog models (BlogCategory, BlogPost, BlogTag, BlogComment)
+  - [x] News models (NewsCategory, News)
+  - [x] Executive Members model
+  - [x] Contact Inquiries model
+  - [x] Reactions model
+  - [x] Notifications model
+  - [x] Reports model
+  - [x] Admin Actions model
+  - [x] Activity Log model
+  - [x] Analytics models (PageView, SiteMetrics)
+  - [x] Search Index model
+  - [x] Site Settings model
+  - [x] Email Template model
+  - [x] Upload model
+  - [x] Cache Entry model
+  - [x] Data Backup model
+- [x] Run initial migration (`bunx prisma db push`)
+- [x] Create database seed script (`prisma/seed.ts`)
+  - [x] Seed forum categories
+  - [x] Seed blog categories
+  - [x] Seed news categories
+  - [x] Seed event categories
+  - [x] Seed document categories
+  - [x] Seed video categories
+  - [x] Seed site settings
+  - [x] Seed email templates
 
 ### 1.3 Core Utilities Setup
 
-- [ ] Create utility functions (`lib/utils/`)
-  - [ ] `cn.ts` - Class name merger (clsx + tailwind-merge)
-  - [ ] `format-date.ts` - Date formatting
-  - [ ] `format-currency.ts` - Currency formatting
-  - [ ] `slugify.ts` - URL slug generator
-  - [ ] `truncate.ts` - Text truncation
-  - [ ] `sanitize.ts` - HTML sanitization (DOMPurify)
-  - [ ] `constants.ts` - App constants
-- [ ] Create validation schemas (`validations/`)
-  - [ ] `common.ts` - Shared schemas
-  - [ ] `auth.ts` - Authentication schemas
-  - [ ] `user.ts` - User schemas
+- [x] Create utility functions (`lib/utils/`)
+  - [x] `cn.ts` - Class name merger (clsx + tailwind-merge)
+  - [x] `format-date.ts` - Date formatting
+  - [x] `format-currency.ts` - Currency formatting
+  - [x] `slugify.ts` - URL slug generator
+  - [x] `truncate.ts` - Text truncation
+  - [x] `sanitize.ts` - HTML sanitization (DOMPurify)
+  - [x] `constants.ts` - App constants
+- [x] Create validation schemas (`validations/`)
+  - [x] `common.ts` - Shared schemas
+  - [x] `auth.ts` - Authentication schemas
+  - [x] `user.ts` - User schemas
 
 ### 1.4 TypeScript Types Setup
 
-- [ ] Create type definitions (`types/`)
-  - [ ] `index.ts` - Export all types
-  - [ ] `auth.ts` - Auth types
-  - [ ] `user.ts` - User types
-  - [ ] `api.ts` - API response types
-  - [ ] `next-auth.d.ts` - NextAuth augmentation
+- [x] Create type definitions (`types/`)
+  - [x] `index.ts` - Export all types
+  - [x] `auth.ts` - Auth types
+  - [x] `user.ts` - User types
+  - [x] `api.ts` - API response types
+  - [x] `next-auth.d.ts` - NextAuth augmentation
 
 ---
 
 ## Phase 2: Authentication System
 
-### 2.1 NextAuth.js v5 Configuration
+### 2.1 Clerk Authentication Configuration
 
-- [ ] Install NextAuth.js v5 (`bun add next-auth@beta`)
-- [ ] Configure auth options (`lib/auth/`)
-  - [ ] Create `config.ts` - Main NextAuth config
-  - [ ] Create `options.ts` - Auth options
-  - [ ] Create `callbacks.ts` - Session/JWT callbacks
-  - [ ] Create `providers.ts` - Credentials provider
-- [ ] Create auth API route (`app/api/auth/[...nextauth]/route.ts`)
-- [ ] Set up session provider (`components/providers/auth-provider.tsx`)
+> **Note:** Migrated from NextAuth v5 to Clerk for authentication
+
+- [x] Install Clerk (`bun add @clerk/nextjs svix`)
+- [x] Configure ClerkProvider in root layout (`app/layout.tsx`)
+- [x] Create Clerk middleware (`middleware.ts`)
+  - [x] Public routes configuration
+  - [x] Protected routes configuration
+  - [x] Admin routes with role checking
+- [x] Create Clerk auth utilities (`lib/auth/index.ts`)
+- [x] Create Clerk webhook (`app/api/webhooks/clerk/route.ts`)
+- [x] Update auth provider (`components/providers/auth-provider.tsx`)
+- [x] Create Clerk types (`types/clerk.d.ts`)
 
 ### 2.2 Password Management
 
-- [ ] Create password utilities (`lib/auth/password.ts`)
-  - [ ] Hash password function (bcrypt, 12 salt rounds)
-  - [ ] Verify password function
-  - [ ] Password strength validator
-- [ ] Create token utilities (`lib/auth/tokens.ts`)
-  - [ ] Generate verification token
-  - [ ] Generate password reset token
-  - [ ] Verify tokens
+- [x] Create password utilities (`lib/auth/password.ts`)
+  - [x] Hash password function (bcrypt, 12 salt rounds)
+  - [x] Verify password function
+  - [x] Password strength validator
+- [x] Create token utilities (`lib/auth/tokens.ts`)
+  - [x] Generate verification token
+  - [x] Generate password reset token
+  - [x] Verify tokens
 
 ### 2.3 Registration Flow
 
-- [ ] Create registration validation schema (`validations/auth.ts`)
-- [ ] Create register server action (`actions/auth/register.ts`)
-- [ ] Create registration page (`app/[locale]/(auth)/register/page.tsx`)
-- [ ] Create registration form component (`app/[locale]/(auth)/register/_components/register-form.tsx`)
-  - [ ] Full name input
-  - [ ] Email input
-  - [ ] Phone number input
-  - [ ] Password input with strength indicator
-  - [ ] Confirm password input
-  - [ ] Family association dropdown
-  - [ ] Village address input
-  - [ ] Profile picture upload (optional)
-  - [ ] Date of birth picker (optional)
-  - [ ] Form validation with Zod
-  - [ ] Submit button with loading state
+- [x] Create registration validation schema (`validations/auth.ts`)
+- [x] Create register server action (`actions/auth/register.ts`)
+  - [x] Input validation with Zod
+  - [x] Duplicate email handling (PENDING users get proper message)
+  - [x] Password hashing
+  - [x] Send verification email via Resend
+- [x] Create registration page (`app/[locale]/(auth)/register/page.tsx`)
+- [x] Create registration form component (`app/[locale]/(auth)/register/_components/register-form.tsx`)
+  - [x] Full name input
+  - [x] Email input
+  - [x] Username input (optional)
+  - [x] Password input with strength indicator
+  - [x] Confirm password input
+  - [x] Terms acceptance checkbox
+  - [x] Form validation with Zod
+  - [x] Submit button with loading state
 
 ### 2.4 Login Flow
 
-- [ ] Create login validation schema
-- [ ] Create login server action (`actions/auth/login.ts`)
-- [ ] Create login page (`app/[locale]/(auth)/login/page.tsx`)
-- [ ] Create login form component (`app/[locale]/(auth)/login/_components/login-form.tsx`)
-  - [ ] Email input
-  - [ ] Password input
-  - [ ] Remember me checkbox
-  - [ ] Forgot password link
-  - [ ] Form validation
-  - [ ] Error handling
+- [x] Create login validation schema
+- [x] Create login server action (`actions/auth/login.ts`)
+  - [x] Block PENDING/unverified users with verification prompt
+  - [x] Block BANNED/SUSPENDED users
+  - [x] Error handling for auth errors
+- [x] Create login page (`app/[locale]/(auth)/login/page.tsx`)
+- [x] Create login form component (`app/[locale]/(auth)/login/_components/login-form.tsx`)
+  - [x] Email input
+  - [x] Password input with visibility toggle
+  - [x] Remember me checkbox
+  - [x] Forgot password link
+  - [x] Form validation
+  - [x] Error handling with verification prompt
 
 ### 2.5 Email Verification
 
-- [ ] Set up email service (`lib/email/`)
-  - [ ] Configure Resend/SendGrid client (`client.ts`)
-  - [ ] Create email templates (`templates/`)
-    - [ ] `verify-email.tsx`
-  - [ ] Create send function (`send.ts`)
-- [ ] Create verify email page (`app/[locale]/(auth)/verify-email/page.tsx`)
-- [ ] Create verify email server action (`actions/auth/verify-email.ts`)
+- [x] Set up email service (`lib/email/`)
+  - [x] Configure Resend client (`client.ts`)
+  - [x] Create email templates (`templates/`)
+    - [x] `verify-email.tsx`
+    - [x] `welcome.tsx`
+    - [x] `reset-password.tsx`
+  - [x] Create send functions (`send.ts`)
+- [x] Create verify email page (`app/[locale]/(auth)/verify-email/page.tsx`)
+- [x] Create verify email server action (`actions/auth/verify-email.ts`)
 
 ### 2.6 Password Reset Flow
 
-- [ ] Create forgot password page (`app/[locale]/(auth)/forgot-password/page.tsx`)
-- [ ] Create forgot password server action (`actions/auth/forgot-password.ts`)
-- [ ] Create reset password email template (`lib/email/templates/reset-password.tsx`)
-- [ ] Create reset password page (`app/[locale]/(auth)/reset-password/page.tsx`)
-- [ ] Create reset password server action (`actions/auth/reset-password.ts`)
+- [x] Create forgot password page (`app/[locale]/(auth)/forgot-password/page.tsx`)
+- [x] Create forgot password form component (`app/[locale]/(auth)/forgot-password/_components/forgot-password-form.tsx`)
+- [x] Create reset password email template (`lib/email/templates/reset-password.tsx`) - Clerk handles email
+- [x] Create reset password page (`app/[locale]/(auth)/reset-password/page.tsx`)
+- [x] Create reset password form component (`app/[locale]/(auth)/reset-password/_components/reset-password-form.tsx`)
 
 ### 2.7 Auth Layout & Guards
 
-- [ ] Create auth layout (`app/[locale]/(auth)/layout.tsx`)
-  - [ ] Redirect authenticated users
-  - [ ] Clean auth-focused design
-- [ ] Create auth guard component (`components/features/auth/auth-guard.tsx`)
-- [ ] Create role guard component (`components/features/auth/role-guard.tsx`)
-- [ ] Create permissions helper (`lib/auth/permissions.ts`)
+- [x] Create auth layout (`app/[locale]/(auth)/layout.tsx`)
+  - [x] Redirect authenticated users
+  - [x] Clean auth-focused design
+- [x] Create auth guard component (`components/features/auth/auth-guard.tsx`)
+- [x] Create role guard component (`components/features/auth/role-guard.tsx`)
+- [x] Create permissions helper (`lib/auth/permissions.ts`)
+- [x] Create user role API endpoint (`app/api/users/me/role/route.ts`)
 
 ---
 

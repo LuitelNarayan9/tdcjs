@@ -21,6 +21,9 @@
 # production
 /build
 
+# Removing from github
+/task
+
 # misc
 .DS_Store
 *.pem

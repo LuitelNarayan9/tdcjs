@@ -41,6 +41,7 @@ email String @unique
 emailVerified DateTime?
 password String // Hashed password
 name String
+username String?
 phone String?
 role Role @default(USER)
 status UserStatus @default(PENDING)
@@ -968,6 +969,29 @@ createdAt DateTime @default(now())
 @@index([tableName])
 @@index([createdAt])
 @@map("data_backups")
+}
+
+model AuditLog {
+id String @id @default(cuid())
+userId String
+action String
+entityType String
+entityId String
+oldValue Json?
+newValue Json?
+description String
+metadata Json? // Additional context
+ipAddress String?
+userAgent String?
+
+createdAt DateTime @default(now())
+
+user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+@@index([userId])
+@@index([entityType])
+@@index([createdAt])
+@@map("audit_logs")
 }
 
 // ============================================
