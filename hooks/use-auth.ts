@@ -1,79 +1,52 @@
 'use client';
 
 /**
- * Auth hooks for client-side authentication
+ * Auth hooks for client-side authentication with Clerk
  */
 
-import { useSession, signIn, signOut } from 'next-auth/react';
-import { useCallback, useMemo, useEffect } from 'react';
+import { useUser, useClerk, useAuth as useClerkAuth } from '@clerk/nextjs';
+import { useCallback, useMemo, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 /**
- * Extended session hook with helper functions
+ * Extended auth hook with helper functions for Clerk
  * 
  * @example
- * const { user, isLoading, isAuthenticated, login, logout } = useAuth();
+ * const { user, isLoading, isAuthenticated, logout } = useAuth();
  */
 export function useAuth() {
-  const { data: session, status, update } = useSession();
+  const { user, isLoaded: isUserLoaded, isSignedIn } = useUser();
+  const { signOut } = useClerk();
+  const { userId } = useClerkAuth();
+  const [userRole, setUserRole] = useState<string | null>(null);
   
-  const isLoading = status === 'loading';
-  const isAuthenticated = status === 'authenticated';
-  const user = session?.user ?? null;
-  const userRole = user?.role;
+  const isLoading = !isUserLoaded;
+  const isAuthenticated = isSignedIn ?? false;
   
-  /**
-   * Sign in with credentials
-   */
-  const login = useCallback(
-    async (credentials: { email: string; password: string }, callbackUrl?: string) => {
-      try {
-        const result = await signIn('credentials', {
-          ...credentials,
-          redirect: false,
-          callbackUrl: callbackUrl || '/dashboard',
+  // Fetch role from our database
+  useEffect(() => {
+    if (userId) {
+      fetch('/api/users/me/role')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.role) {
+            setUserRole(data.role);
+          }
+        })
+        .catch(() => {
+          // Silent fail - role not critical for most operations
         });
-        
-        if (result?.error) {
-          return {
-            success: false,
-            error: result.error,
-          };
-        }
-        
-        return {
-          success: true,
-          callbackUrl: result?.url,
-        };
-      } catch {
-        return {
-          success: false,
-          error: 'An unexpected error occurred',
-        };
-      }
-    },
-    []
-  );
+    }
+  }, [userId]);
   
   /**
    * Sign out
    */
   const logout = useCallback(async (callbackUrl?: string) => {
     await signOut({
-      redirect: true,
-      callbackUrl: callbackUrl || '/login',
+      redirectUrl: callbackUrl || '/login',
     });
-  }, []);
-  
-  /**
-   * Update session data
-   */
-  const updateSession = useCallback(
-    async (data: Partial<{ name: string; username: string; image: string }>) => {
-      await update(data);
-    },
-    [update]
-  );
+  }, [signOut]);
   
   /**
    * Check if user has a specific role
@@ -107,21 +80,25 @@ export function useAuth() {
   const isModerator = useMemo(() => hasRole('MODERATOR'), [hasRole]);
   
   return {
-    // Session data
-    session,
-    user,
-    status,
+    // User data
+    user: user ? {
+      id: user.id,
+      email: user.emailAddresses[0]?.emailAddress ?? null,
+      name: user.fullName ?? user.firstName ?? null,
+      image: user.imageUrl,
+      role: userRole,
+    } : null,
+    clerkUser: user,
     
     // Loading states
     isLoading,
     isAuthenticated,
     
     // Actions
-    login,
     logout,
-    updateSession,
     
     // Role checks
+    userRole,
     hasRole,
     isAdmin,
     isModerator,
@@ -144,7 +121,7 @@ export function useRequireAuth(redirectUrl: string = '/login') {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       const callbackUrl = encodeURIComponent(window.location.pathname);
-      router.push(`${redirectUrl}?callbackUrl=${callbackUrl}`);
+      router.push(`${redirectUrl}?redirect_url=${callbackUrl}`);
     }
   }, [isLoading, isAuthenticated, redirectUrl, router]);
   
