@@ -84,16 +84,20 @@ A comprehensive full-stack web application for a village community organization 
 
 ## Phase 2: Authentication System
 
-### 2.1 NextAuth.js v5 Configuration
+### 2.1 Clerk Authentication Configuration
 
-- [x] Install NextAuth.js v5 (`bun add next-auth@beta`)
-- [x] Configure auth options (`lib/auth/`)
-  - [x] Create `config.ts` - Main NextAuth config
-  - [x] Create `options.ts` - Auth options
-  - [x] Create `callbacks.ts` - Session/JWT callbacks
-  - [x] Create `providers.ts` - Credentials provider
-- [x] Create auth API route (`app/api/auth/[...nextauth]/route.ts`)
-- [x] Set up session provider (`components/providers/auth-provider.tsx`)
+> **Note:** Migrated from NextAuth v5 to Clerk for authentication
+
+- [x] Install Clerk (`bun add @clerk/nextjs svix`)
+- [x] Configure ClerkProvider in root layout (`app/layout.tsx`)
+- [x] Create Clerk middleware (`middleware.ts`)
+  - [x] Public routes configuration
+  - [x] Protected routes configuration
+  - [x] Admin routes with role checking
+- [x] Create Clerk auth utilities (`lib/auth/index.ts`)
+- [x] Create Clerk webhook (`app/api/webhooks/clerk/route.ts`)
+- [x] Update auth provider (`components/providers/auth-provider.tsx`)
+- [x] Create Clerk types (`types/clerk.d.ts`)
 
 ### 2.2 Password Management
 
@@ -108,61 +112,68 @@ A comprehensive full-stack web application for a village community organization 
 
 ### 2.3 Registration Flow
 
-- [ ] Create registration validation schema (`validations/auth.ts`)
-- [ ] Create register server action (`actions/auth/register.ts`)
-- [ ] Create registration page (`app/[locale]/(auth)/register/page.tsx`)
-- [ ] Create registration form component (`app/[locale]/(auth)/register/_components/register-form.tsx`)
-  - [ ] Full name input
-  - [ ] Email input
-  - [ ] Phone number input
-  - [ ] Password input with strength indicator
-  - [ ] Confirm password input
-  - [ ] Family association dropdown
-  - [ ] Village address input
-  - [ ] Profile picture upload (optional)
-  - [ ] Date of birth picker (optional)
-  - [ ] Form validation with Zod
-  - [ ] Submit button with loading state
+- [x] Create registration validation schema (`validations/auth.ts`)
+- [x] Create register server action (`actions/auth/register.ts`)
+  - [x] Input validation with Zod
+  - [x] Duplicate email handling (PENDING users get proper message)
+  - [x] Password hashing
+  - [x] Send verification email via Resend
+- [x] Create registration page (`app/[locale]/(auth)/register/page.tsx`)
+- [x] Create registration form component (`app/[locale]/(auth)/register/_components/register-form.tsx`)
+  - [x] Full name input
+  - [x] Email input
+  - [x] Username input (optional)
+  - [x] Password input with strength indicator
+  - [x] Confirm password input
+  - [x] Terms acceptance checkbox
+  - [x] Form validation with Zod
+  - [x] Submit button with loading state
 
 ### 2.4 Login Flow
 
-- [ ] Create login validation schema
-- [ ] Create login server action (`actions/auth/login.ts`)
-- [ ] Create login page (`app/[locale]/(auth)/login/page.tsx`)
-- [ ] Create login form component (`app/[locale]/(auth)/login/_components/login-form.tsx`)
-  - [ ] Email input
-  - [ ] Password input
-  - [ ] Remember me checkbox
-  - [ ] Forgot password link
-  - [ ] Form validation
-  - [ ] Error handling
+- [x] Create login validation schema
+- [x] Create login server action (`actions/auth/login.ts`)
+  - [x] Block PENDING/unverified users with verification prompt
+  - [x] Block BANNED/SUSPENDED users
+  - [x] Error handling for auth errors
+- [x] Create login page (`app/[locale]/(auth)/login/page.tsx`)
+- [x] Create login form component (`app/[locale]/(auth)/login/_components/login-form.tsx`)
+  - [x] Email input
+  - [x] Password input with visibility toggle
+  - [x] Remember me checkbox
+  - [x] Forgot password link
+  - [x] Form validation
+  - [x] Error handling with verification prompt
 
 ### 2.5 Email Verification
 
-- [ ] Set up email service (`lib/email/`)
-  - [ ] Configure Resend/SendGrid client (`client.ts`)
-  - [ ] Create email templates (`templates/`)
-    - [ ] `verify-email.tsx`
-  - [ ] Create send function (`send.ts`)
-- [ ] Create verify email page (`app/[locale]/(auth)/verify-email/page.tsx`)
-- [ ] Create verify email server action (`actions/auth/verify-email.ts`)
+- [x] Set up email service (`lib/email/`)
+  - [x] Configure Resend client (`client.ts`)
+  - [x] Create email templates (`templates/`)
+    - [x] `verify-email.tsx`
+    - [x] `welcome.tsx`
+    - [x] `reset-password.tsx`
+  - [x] Create send functions (`send.ts`)
+- [x] Create verify email page (`app/[locale]/(auth)/verify-email/page.tsx`)
+- [x] Create verify email server action (`actions/auth/verify-email.ts`)
 
 ### 2.6 Password Reset Flow
 
-- [ ] Create forgot password page (`app/[locale]/(auth)/forgot-password/page.tsx`)
-- [ ] Create forgot password server action (`actions/auth/forgot-password.ts`)
-- [ ] Create reset password email template (`lib/email/templates/reset-password.tsx`)
-- [ ] Create reset password page (`app/[locale]/(auth)/reset-password/page.tsx`)
-- [ ] Create reset password server action (`actions/auth/reset-password.ts`)
+- [x] Create forgot password page (`app/[locale]/(auth)/forgot-password/page.tsx`)
+- [x] Create forgot password form component (`app/[locale]/(auth)/forgot-password/_components/forgot-password-form.tsx`)
+- [x] Create reset password email template (`lib/email/templates/reset-password.tsx`) - Clerk handles email
+- [x] Create reset password page (`app/[locale]/(auth)/reset-password/page.tsx`)
+- [x] Create reset password form component (`app/[locale]/(auth)/reset-password/_components/reset-password-form.tsx`)
 
 ### 2.7 Auth Layout & Guards
 
-- [ ] Create auth layout (`app/[locale]/(auth)/layout.tsx`)
-  - [ ] Redirect authenticated users
-  - [ ] Clean auth-focused design
-- [ ] Create auth guard component (`components/features/auth/auth-guard.tsx`)
-- [ ] Create role guard component (`components/features/auth/role-guard.tsx`)
-- [ ] Create permissions helper (`lib/auth/permissions.ts`)
+- [x] Create auth layout (`app/[locale]/(auth)/layout.tsx`)
+  - [x] Redirect authenticated users
+  - [x] Clean auth-focused design
+- [x] Create auth guard component (`components/features/auth/auth-guard.tsx`)
+- [x] Create role guard component (`components/features/auth/role-guard.tsx`)
+- [x] Create permissions helper (`lib/auth/permissions.ts`)
+- [x] Create user role API endpoint (`app/api/users/me/role/route.ts`)
 
 ---
 

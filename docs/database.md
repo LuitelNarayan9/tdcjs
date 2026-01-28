@@ -41,6 +41,7 @@ email String @unique
 emailVerified DateTime?
 password String // Hashed password
 name String
+username String?
 phone String?
 role Role @default(USER)
 status UserStatus @default(PENDING)
