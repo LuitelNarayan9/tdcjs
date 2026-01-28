@@ -1,8 +1,9 @@
 /**
- * Clerk Middleware
+ * Clerk Proxy
  * Protects routes and handles auth redirects
  * 
  * Next.js 16.1.4 with Clerk
+ * Note: Renamed from middleware.ts to proxy.ts per Next.js 16 convention
  */
 
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
@@ -67,7 +68,8 @@ export default clerkMiddleware(async (auth, req) => {
     }
     
     // Check role from session claims (set via Clerk dashboard or webhook)
-    const userRole = sessionClaims?.metadata?.role as string | undefined;
+    const metadata = sessionClaims?.metadata as { role?: string } | undefined;
+    const userRole = metadata?.role;
     const adminRoles = ['SUPER_ADMIN', 'ADMIN'];
     
     if (!userRole || !adminRoles.includes(userRole)) {

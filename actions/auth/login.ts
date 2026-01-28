@@ -77,19 +77,19 @@ export async function validateLogin(data: LoginInput): Promise<LoginResult> {
         };
       }
       
-      // Block BANNED users
-      if (dbUser.status === 'BANNED') {
-        return {
-          success: false,
-          message: 'Your account has been banned. Please contact support for assistance.',
-        };
-      }
-      
       // Block SUSPENDED users
       if (dbUser.status === 'SUSPENDED') {
         return {
           success: false,
-          message: 'Your account has been temporarily suspended. Please contact support.',
+          message: 'Your account has been suspended. Please contact support for assistance.',
+        };
+      }
+      
+      // Block DELETED users
+      if (dbUser.status === 'DELETED') {
+        return {
+          success: false,
+          message: 'This account no longer exists.',
         };
       }
     }

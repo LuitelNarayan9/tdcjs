@@ -2,14 +2,16 @@
 
 /**
  * Email Verification Server Action
- * Handles email verification and sends welcome email
+ * Handles email verification status sync with database
+ * 
+ * Note: Clerk handles all email verification emails
+ * This action syncs Clerk verification status with our database
  * 
  * Next.js 16.1.4 Server Action
  */
 
 import { prisma } from '@/lib/db';
-import { verifyToken, createVerificationToken } from '@/lib/auth/tokens';
-import { sendWelcomeEmail, sendVerificationEmail } from '@/lib/email';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 
 interface VerifyEmailResult {
   success: boolean;
@@ -18,76 +20,62 @@ interface VerifyEmailResult {
 }
 
 /**
- * Verify user email with token
+ * Sync email verification status from Clerk to database
+ * Called when user clicks verify button or after OAuth callback
  * 
- * @param token - Verification token from email link
  * @returns Result with success status
  */
-export async function verifyEmail(token: string): Promise<VerifyEmailResult> {
+export async function syncEmailVerification(): Promise<VerifyEmailResult> {
   try {
-    if (!token) {
+    const { userId } = await auth();
+    
+    if (!userId) {
       return {
         success: false,
-        message: 'Verification token is required',
+        message: 'You must be logged in to verify your email',
       };
     }
     
-    // Verify token and get email
-    const email = await verifyToken(token);
+    const clerk = await clerkClient();
+    const clerkUser = await clerk.users.getUser(userId);
     
-    if (!email) {
+    // Check if email is verified in Clerk
+    const primaryEmail = clerkUser.emailAddresses.find(
+      (email) => email.id === clerkUser.primaryEmailAddressId
+    );
+    
+    if (!primaryEmail) {
       return {
         success: false,
-        message: 'Invalid or expired verification link. Please request a new one.',
+        message: 'No email address found',
       };
     }
     
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
-      select: { id: true, name: true, emailVerified: true, status: true },
-    });
+    const isVerified = primaryEmail.verification?.status === 'verified';
     
-    if (!user) {
+    if (!isVerified) {
       return {
         success: false,
-        message: 'User not found',
+        message: 'Please verify your email through the link sent by Clerk.',
       };
     }
     
-    // Check if already verified
-    if (user.emailVerified) {
-      return {
-        success: true,
-        message: 'Your email is already verified. You can now login.',
-        redirectTo: '/login',
-      };
-    }
-    
-    // Update user: set emailVerified and status to ACTIVE
+    // Update our database to mark email as verified
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: userId },
       data: {
         emailVerified: new Date(),
         status: 'ACTIVE',
       },
     });
     
-    // Send welcome email
-    const emailResult = await sendWelcomeEmail(email, user.name || 'User');
-    
-    if (!emailResult.success) {
-      console.error('Failed to send welcome email:', emailResult.error);
-      // Don't fail verification if welcome email fails
-    }
-    
     return {
       success: true,
-      message: 'Email verified successfully! You can now login to your account.',
-      redirectTo: '/login?verified=true',
+      message: 'Email verified successfully! You can now access all features.',
+      redirectTo: '/dashboard',
     };
   } catch (error) {
-    console.error('Email verification error:', error);
+    console.error('Email verification sync error:', error);
     return {
       success: false,
       message: 'An error occurred during verification. Please try again.',
@@ -96,63 +84,53 @@ export async function verifyEmail(token: string): Promise<VerifyEmailResult> {
 }
 
 /**
- * Resend verification email
+ * Request email verification from Clerk
+ * Clerk will send the verification email
  * 
- * @param email - User's email address
  * @returns Result with success status
  */
-export async function resendVerificationEmailAction(email: string): Promise<VerifyEmailResult> {
+export async function requestEmailVerification(): Promise<VerifyEmailResult> {
   try {
-    if (!email) {
+    const { userId } = await auth();
+    
+    if (!userId) {
       return {
         success: false,
-        message: 'Email is required',
+        message: 'You must be logged in to request verification',
       };
     }
     
-    const emailLower = email.toLowerCase();
+    const clerk = await clerkClient();
+    const clerkUser = await clerk.users.getUser(userId);
     
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email: emailLower },
-      select: { id: true, name: true, emailVerified: true, status: true },
-    });
+    const primaryEmail = clerkUser.emailAddresses.find(
+      (email) => email.id === clerkUser.primaryEmailAddressId
+    );
     
-    if (!user) {
-      // Generic message to prevent email enumeration
+    if (!primaryEmail) {
+      return {
+        success: false,
+        message: 'No email address found',
+      };
+    }
+    
+    if (primaryEmail.verification?.status === 'verified') {
       return {
         success: true,
-        message: 'If an account exists with this email, a verification link will be sent.',
+        message: 'Your email is already verified!',
       };
     }
     
-    // Check if already verified
-    if (user.emailVerified) {
-      return {
-        success: false,
-        message: 'This email is already verified. You can login directly.',
-      };
-    }
-    
-    // Create new verification token
-    const { token } = await createVerificationToken(emailLower, 'EMAIL_VERIFICATION');
-    
-    // Send verification email
-    const emailResult = await sendVerificationEmail(emailLower, user.name || 'User', token);
-    
-    if (!emailResult.success) {
-      return {
-        success: false,
-        message: 'Failed to send verification email. Please try again later.',
-      };
-    }
+    // Clerk automatically sends verification emails when needed
+    // The user can request a new one through Clerk's UserProfile component
+    // or through their account settings
     
     return {
       success: true,
-      message: 'Verification email sent! Please check your inbox.',
+      message: 'Please check your email for a verification link from Clerk.',
     };
   } catch (error) {
-    console.error('Resend verification error:', error);
+    console.error('Request verification error:', error);
     return {
       success: false,
       message: 'An error occurred. Please try again.',
